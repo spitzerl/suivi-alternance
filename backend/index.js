@@ -11,6 +11,11 @@ const JWT_SECRET = process.env.JWT_SECRET || "1234567890";
 app.use(cors());
 app.use(express.json());
 
+// --- HEALTH CHECK ---
+app.get("/api/", (req, res) => {
+  res.json({ message: "API is running" });
+});
+
 // --- MIDDLEWARE D'AUTH ---
 const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
