@@ -13,6 +13,16 @@ services:
     ports:
       - "5432:5432"
 
+  # Client Web BDD (Interface visuelle)
+  adminer:
+    image: adminer:latest
+    container_name: db_adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
   # Backend
   backend:
     build: ./backend
