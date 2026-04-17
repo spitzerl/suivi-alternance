@@ -8,17 +8,19 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Search, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown, Trash2, Pencil, ChevronDown, ChevronUp, ChevronRight, RotateCcw, Check, X } from 'lucide-react';
+import { Plus, Search, Filter, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown, Trash2, Pencil, ChevronDown, ChevronUp, ChevronRight, RotateCcw, Check, X, Bell } from 'lucide-react';
 
 const STATUS_OPTIONS = [
   { value: 'En attente', color: 'bg-yellow-100 text-yellow-800' },
   { value: 'Entretien', color: 'bg-blue-100 text-blue-800' },
   { value: 'Acceptée', color: 'bg-green-100 text-green-800' },
   { value: 'Refusée', color: 'bg-red-100 text-red-800' },
+  { value: 'Abandonnée', color: 'bg-gray-100 text-gray-800' },
   { value: 'Relancée', color: 'bg-purple-100 text-purple-800' },
 ];
 
-const STATUS_ORDER = { 'Acceptée': 0, 'Entretien': 1, 'Relancée': 2, 'En attente': 3, 'Refusée': 4 };
+const STATUS_ORDER = { 'Acceptée': 0, 'Entretien': 1, 'Relancée': 2, 'En attente': 3, 'Refusée': 4, 'Abandonnée': 5 };
+const INACTIVE_STATUSES = ['Refusée', 'Abandonnée'];
 
 const METHOD_OPTIONS = ['Email', 'Téléphone', 'LinkedIn', 'Courrier', 'Autre'];
 
@@ -131,6 +133,12 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'dateApplication', direction: 'desc' });
   const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState({
+    hideInactive: true,
+    status: 'All',
+    priority: 'All',
+    needsRelaunch: false,
+  });
 
   // Relaunch state
   const [relaunches, setRelaunches] = useState([]);
@@ -163,8 +171,6 @@ export default function DashboardPage() {
       return { key, direction: 'asc' };
     });
   };
-
-
 
   const sortedApplications = useMemo(() => {
     if (!sortConfig.key) return applications;
@@ -224,34 +230,71 @@ export default function DashboardPage() {
   }, [applications, sortConfig]);
 
   const filteredApplications = useMemo(() => {
-    if (!searchQuery.trim()) return sortedApplications;
-    const q = searchQuery.toLowerCase();
-    return sortedApplications.filter(app => {
-      const searchFields = [
-        app.companyName,
-        app.jobTitle,
-        app.status,
-        app.location,
-        app.salary,
-        app.source,
-        app.notes,
-        app.priority,
-        app.relaunches?.length,
-        formatDate(app.dateApplication),
-        formatDate(getLatestRelaunchDate(app))
-      ];
-      return searchFields.some(f => String(f ?? '').toLowerCase().includes(q));
-    });
-  }, [sortedApplications, searchQuery]);
+    let result = [...sortedApplications];
 
+    // 1. Filter by inactive status
+    if (filters.hideInactive) {
+      result = result.filter(app => !INACTIVE_STATUSES.includes(app.status));
+    }
 
+    // 2. Filter by specific status
+    if (filters.status !== 'All') {
+      result = result.filter(app => app.status === filters.status);
+    }
+
+    // 3. Filter by priority
+    if (filters.priority !== 'All') {
+      result = result.filter(app => app.priority === parseInt(filters.priority));
+    }
+
+    // 4. Filter by Needs Relaunch
+    if (filters.needsRelaunch) {
+      const tenDaysAgo = new Date();
+      tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+
+      result = result.filter(app => {
+        if (app.status !== 'En attente' && app.status !== 'Relancée') return false;
+        const lastActivityDate = getLatestRelaunchDate(app) || new Date(app.dateApplication).getTime();
+        return lastActivityDate < tenDaysAgo.getTime();
+      });
+    }
+
+    // 5. Search query
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(app => {
+        const searchFields = [
+          app.companyName,
+          app.jobTitle,
+          app.status,
+          app.location,
+          app.salary,
+          app.source,
+          app.notes,
+          app.priority,
+          app.relaunches?.length,
+          formatDate(app.dateApplication),
+          formatDate(getLatestRelaunchDate(app))
+        ];
+        return searchFields.some(f => String(f ?? '').toLowerCase().includes(q));
+      });
+    }
+
+    return result;
+  }, [sortedApplications, searchQuery, filters]);
+
+  const toggleFilter = (key) => {
+    setFilters(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
 
   const openNew = () => {
     setForm(emptyForm);
     setEditingId(null);
     setRelaunches([]);
-    setShowRelaunchForm(false);
-    setEditingRelaunchId(null);
     setRelaunchesExpanded(false);
     setError('');
     setDialogOpen(true);
@@ -272,8 +315,6 @@ export default function DashboardPage() {
     });
     setEditingId(app.id);
     setRelaunches(app.relaunches || []);
-    setShowRelaunchForm(false);
-    setEditingRelaunchId(null);
     setRelaunchesExpanded((app.relaunches || []).length > 0);
     setError('');
     setDialogOpen(true);
@@ -376,9 +417,9 @@ export default function DashboardPage() {
     }
   };
 
-
-
-  const sortedRelaunches = [...relaunches].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const sortedRelaunches = useMemo(() => {
+    return [...relaunches].sort((a, b) => new Date(b.date) - new Date(a.date));
+  }, [relaunches]);
 
   return (
     <div className="max-w-[1600px] mx-auto w-full px-6 py-10 space-y-6">
@@ -392,278 +433,252 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="relative w-72">
+          <div className="relative w-64">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Rechercher partout..."
+              placeholder="Rechercher..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 h-9 text-[13px]"
             />
           </div>
+
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="text-[13px] gap-1.5" onClick={openNew}>
+                <Plus className="h-4 w-4" /> Ajouter
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{editingId ? 'Modifier la candidature' : 'Nouvelle candidature'}</DialogTitle>
+              </DialogHeader>
+
+              {error && (
+                <div className="text-[13px] text-destructive bg-destructive/10 rounded-md px-3 py-2">{error}</div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-[13px]">Entreprise *</Label>
+                    <Input required value={form.companyName} onChange={(e) => handleChange('companyName', e.target.value)} className="h-9" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[13px]">Poste</Label>
+                    <Input value={form.jobTitle} onChange={(e) => handleChange('jobTitle', e.target.value)} className="h-9" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-[13px]">Statut *</Label>
+                    <Select value={form.status} onValueChange={(v) => handleChange('status', v)}>
+                      <SelectTrigger className="h-9 text-[13px]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {STATUS_OPTIONS.map((s) => (
+                          <SelectItem key={s.value} value={s.value} className="text-[13px]">{s.value}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[13px]">Date de candidature</Label>
+                    <Input type="date" value={form.dateApplication} onChange={(e) => handleChange('dateApplication', e.target.value)} className="h-9 text-[13px]" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-[13px]">Localisation</Label>
+                    <Input value={form.location} onChange={(e) => handleChange('location', e.target.value)} className="h-9" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[13px]">Salaire</Label>
+                    <Input value={form.salary} onChange={(e) => handleChange('salary', e.target.value)} className="h-9" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-[13px]">Source</Label>
+                    <Input placeholder="LinkedIn, Indeed…" value={form.source} onChange={(e) => handleChange('source', e.target.value)} className="h-9" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[13px]">Priorité (1-5)</Label>
+                    <Input type="number" min="1" max="5" value={form.priority} onChange={(e) => handleChange('priority', e.target.value)} className="h-9" />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[13px]">Lien de l'offre</Label>
+                  <Input type="url" placeholder="https://…" value={form.applicationUrl} onChange={(e) => handleChange('applicationUrl', e.target.value)} className="h-9" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[13px]">Notes</Label>
+                  <Textarea rows={3} value={form.notes} onChange={(e) => handleChange('notes', e.target.value)} className="text-[13px]" />
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <Button type="button" variant="outline" size="sm" className="text-[13px]" onClick={() => setDialogOpen(false)}>Annuler</Button>
+                  <Button type="submit" size="sm" className="text-[13px]" disabled={saving}>
+                    {saving ? 'Enregistrement…' : editingId ? 'Modifier' : 'Ajouter'}
+                  </Button>
+                </div>
+              </form>
+
+              {editingId && (
+                <div className="mt-2 border-t pt-4">
+                  <button
+                    type="button"
+                    className="flex items-center gap-2 w-full text-left group"
+                    onClick={() => setRelaunchesExpanded((v) => !v)}
+                  >
+                    <RotateCcw className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-[14px] font-medium">Relances</span>
+                    <span className="text-[12px] text-muted-foreground ml-1">({relaunches.length})</span>
+                    {relaunchesExpanded
+                      ? <ChevronUp className="h-3.5 w-3.5 ml-auto text-muted-foreground" />
+                      : <ChevronDown className="h-3.5 w-3.5 ml-auto text-muted-foreground" />
+                    }
+                  </button>
+                  {relaunchesExpanded && (
+                    <div className="mt-3 space-y-3">
+                      {editingRelaunchId === 'new' ? (
+                        <div className="border rounded-lg p-3 space-y-3 bg-muted/5 border-primary/20 text-[13px]">
+                          <p className="font-medium">Nouvelle relance</p>
+                          <div className="grid grid-cols-3 gap-3">
+                            <div className="space-y-1.5">
+                              <Label className="text-[12px]">Date</Label>
+                              <Input type="date" value={relaunchForm.date} onChange={(e) => handleRelaunchChange('date', e.target.value)} className="h-8 text-[12px]" />
+                            </div>
+                            <div className="space-y-1.5">
+                              <Label className="text-[12px]">Méthode</Label>
+                              <Select value={relaunchForm.method} onValueChange={(v) => handleRelaunchChange('method', v)}>
+                                <SelectTrigger className="h-8 text-[12px]"><SelectValue placeholder="~" /></SelectTrigger>
+                                <SelectContent>
+                                  {METHOD_OPTIONS.map((m) => <SelectItem key={m} value={m} className="text-[12px]">{m}</SelectItem>)}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-1.5">
+                              <Label className="text-[12px]">Réponse</Label>
+                              <Select value={relaunchForm.response} onValueChange={(v) => handleRelaunchChange('response', v)}>
+                                <SelectTrigger className="h-8 text-[12px]"><SelectValue placeholder="~" /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="true" className="text-[12px]">Oui</SelectItem>
+                                  <SelectItem value="false" className="text-[12px]">Non</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-[12px]">Notes</Label>
+                            <Textarea rows={2} value={relaunchForm.notes} onChange={(e) => handleRelaunchChange('notes', e.target.value)} className="text-[12px]" placeholder="Détails..." />
+                          </div>
+                          <div className="flex justify-end gap-2">
+                            <Button type="button" variant="outline" size="sm" className="text-[12px] h-7" onClick={cancelRelaunchForm}>Annuler</Button>
+                            <Button type="button" size="sm" className="text-[12px] h-7" onClick={handleRelaunchSubmit} disabled={savingRelaunch}>Ajouter</Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <Button type="button" variant="outline" size="sm" className="text-[12px] gap-1.5 w-full border-dashed" onClick={openNewRelaunch}>
+                          <Plus className="h-3.5 w-3.5" /> Ajouter une relance
+                        </Button>
+                      )}
+                      {relaunches.length > 0 ? (
+                        <div className="space-y-2">
+                          {sortedRelaunches.map((r) => (
+                            <div key={r.id} className="rounded-lg border bg-muted/20 overflow-hidden text-[13px]">
+                              <div className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-muted/30 transition-colors group" onClick={() => toggleEditRelaunch(r)}>
+                                {editingRelaunchId === r.id ? <ChevronDown className="h-4 w-4 text-primary" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                                <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
+                                  <span className="font-medium">{formatDate(r.date)}</span>
+                                  {r.method && <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">{r.method}</span>}
+                                  {responseBadge(r.response)}
+                                </div>
+                                <button type="button" onClick={(e) => { e.stopPropagation(); deleteRelaunch(r.id); }} className="p-1 rounded hover:bg-destructive/10 opacity-0 group-hover:opacity-100"><Trash2 className="h-3.5 w-3.5 text-destructive" /></button>
+                              </div>
+                              {editingRelaunchId === r.id && (
+                                <div className="p-3 border-t bg-background space-y-3">
+                                  <div className="grid grid-cols-3 gap-3">
+                                    <div className="space-y-1.5 text-[12px]"><Label>Date</Label><Input type="date" value={relaunchForm.date} onChange={(e) => handleRelaunchChange('date', e.target.value)} className="h-8 text-[12px]" /></div>
+                                    <div className="space-y-1.5 text-[12px]"><Label>Méthode</Label><Select value={relaunchForm.method} onValueChange={(v) => handleRelaunchChange('method', v)}><SelectTrigger className="h-8 text-[12px]"><SelectValue /></SelectTrigger><SelectContent>{METHOD_OPTIONS.map(m => <SelectItem key={m} value={m} className="text-[12px]">{m}</SelectItem>)}</SelectContent></Select></div>
+                                    <div className="space-y-1.5 text-[12px]"><Label>Réponse</Label><Select value={relaunchForm.response} onValueChange={(v) => handleRelaunchChange('response', v)}><SelectTrigger className="h-8 text-[12px]"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="true" className="text-[12px]">Oui</SelectItem><SelectItem value="false" className="text-[12px]">Non</SelectItem></SelectContent></Select></div>
+                                  </div>
+                                  <div className="space-y-1.5 text-[12px]"><Label>Notes</Label><Textarea rows={2} value={relaunchForm.notes} onChange={(e) => handleRelaunchChange('notes', e.target.value)} className="text-[12px]" /></div>
+                                  <div className="flex justify-end gap-2"><Button type="button" variant="outline" size="sm" className="h-7 text-[12px]" onClick={cancelRelaunchForm}>Annuler</Button><Button type="button" size="sm" className="h-7 text-[12px]" onClick={handleRelaunchSubmit} disabled={savingRelaunch}>Enregistrer</Button></div>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : editingRelaunchId !== 'new' && <p className="text-[12px] text-muted-foreground text-center py-2">Aucune relance.</p>}
+                    </div>
+                  )}
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      <div className="flex items-center flex-wrap gap-4 py-2 border-y bg-muted/5 px-1">
+        <div className="flex items-center gap-2 pr-4 border-r">
+          <Button
+            variant={filters.hideInactive ? 'secondary' : 'outline'}
+            size="sm"
+            className="h-8 text-[12px] gap-1.5"
+            onClick={() => toggleFilter('hideInactive')}
+          >
+            {filters.hideInactive ? <X className="h-3 w-3" /> : <Check className="h-3 w-3" />}
+            Masquer refusés/abandonnés
+          </Button>
+
+          <Button
+            variant={filters.needsRelaunch ? 'secondary' : 'outline'}
+            size="sm"
+            className="h-8 text-[12px] gap-1.5 text-orange-600 border-orange-200 bg-orange-50 hover:bg-orange-100"
+            onClick={() => toggleFilter('needsRelaunch')}
+          >
+            <Bell className="h-3 w-3" />
+            À relancer
+          </Button>
         </div>
 
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="text-[13px] gap-1.5" onClick={openNew}>
-              <Plus className="h-4 w-4" /> Ajouter
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingId ? 'Modifier la candidature' : 'Nouvelle candidature'}</DialogTitle>
-            </DialogHeader>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[12px] text-muted-foreground">Statut:</span>
+            <Select value={filters.status} onValueChange={(v) => handleFilterChange('status', v)}>
+              <SelectTrigger className="h-8 w-32 text-[12px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All" className="text-[12px]">Tous</SelectItem>
+                {STATUS_OPTIONS.map((s) => (
+                  <SelectItem key={s.value} value={s.value} className="text-[12px]">{s.value}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-            {error && (
-              <div className="text-[13px] text-destructive bg-destructive/10 rounded-md px-3 py-2">{error}</div>
-            )}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[12px] text-muted-foreground">Priorité:</span>
+            <Select value={filters.priority} onValueChange={(v) => handleFilterChange('priority', v)}>
+              <SelectTrigger className="h-8 w-24 text-[12px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All" className="text-[12px]">Toutes</SelectItem>
+                {[1, 2, 3, 4, 5].map((p) => (
+                  <SelectItem key={p} value={String(p)} className="text-[12px]">P{p}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4 pt-2">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-[13px]">Entreprise *</Label>
-                  <Input required value={form.companyName} onChange={(e) => handleChange('companyName', e.target.value)} className="h-9" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[13px]">Poste</Label>
-                  <Input value={form.jobTitle} onChange={(e) => handleChange('jobTitle', e.target.value)} className="h-9" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-[13px]">Statut *</Label>
-                  <Select value={form.status} onValueChange={(v) => handleChange('status', v)}>
-                    <SelectTrigger className="h-9 text-[13px]"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {STATUS_OPTIONS.map((s) => (
-                        <SelectItem key={s.value} value={s.value} className="text-[13px]">{s.value}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[13px]">Date de candidature</Label>
-                  <Input type="date" value={form.dateApplication} onChange={(e) => handleChange('dateApplication', e.target.value)} className="h-9 text-[13px]" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-[13px]">Localisation</Label>
-                  <Input value={form.location} onChange={(e) => handleChange('location', e.target.value)} className="h-9" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[13px]">Salaire</Label>
-                  <Input value={form.salary} onChange={(e) => handleChange('salary', e.target.value)} className="h-9" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-[13px]">Source</Label>
-                  <Input placeholder="LinkedIn, Indeed…" value={form.source} onChange={(e) => handleChange('source', e.target.value)} className="h-9" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[13px]">Priorité (1-5)</Label>
-                  <Input type="number" min="1" max="5" value={form.priority} onChange={(e) => handleChange('priority', e.target.value)} className="h-9" />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-[13px]">Lien de l'offre</Label>
-                <Input type="url" placeholder="https://…" value={form.applicationUrl} onChange={(e) => handleChange('applicationUrl', e.target.value)} className="h-9" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-[13px]">Notes</Label>
-                <Textarea rows={3} value={form.notes} onChange={(e) => handleChange('notes', e.target.value)} className="text-[13px]" />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <Button type="button" variant="outline" size="sm" className="text-[13px]" onClick={() => setDialogOpen(false)}>Annuler</Button>
-                <Button type="submit" size="sm" className="text-[13px]" disabled={saving}>
-                  {saving ? 'Enregistrement…' : editingId ? 'Modifier' : 'Ajouter'}
-                </Button>
-              </div>
-            </form>
-
-            {/* --- Relaunch Section (edit mode only) --- */}
-            {editingId && (
-              <div className="mt-2 border-t pt-4">
-                <button
-                  type="button"
-                  className="flex items-center gap-2 w-full text-left group"
-                  onClick={() => setRelaunchesExpanded((v) => !v)}
-                >
-                  <RotateCcw className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-[14px] font-medium">Relances</span>
-                  <span className="text-[12px] text-muted-foreground ml-1">({relaunches.length})</span>
-                  {relaunchesExpanded
-                    ? <ChevronUp className="h-3.5 w-3.5 ml-auto text-muted-foreground" />
-                    : <ChevronDown className="h-3.5 w-3.5 ml-auto text-muted-foreground" />
-                  }
-                </button>
-
-                {relaunchesExpanded && (
-                  <div className="mt-3 space-y-3">
-                    {/* Add new relaunch inline-style form at the top */}
-                    {editingRelaunchId === 'new' ? (
-                      <div className="border rounded-lg p-3 space-y-3 bg-muted/5 border-primary/20">
-                        <p className="text-[13px] font-medium">Nouvelle relance</p>
-                        <div className="grid grid-cols-3 gap-3">
-                          <div className="space-y-1.5">
-                            <Label className="text-[12px]">Date</Label>
-                            <Input
-                              type="date"
-                              value={relaunchForm.date}
-                              onChange={(e) => handleRelaunchChange('date', e.target.value)}
-                              className="h-8 text-[12px]"
-                            />
-                          </div>
-                          <div className="space-y-1.5">
-                            <Label className="text-[12px]">Méthode</Label>
-                            <Select value={relaunchForm.method} onValueChange={(v) => handleRelaunchChange('method', v)}>
-                              <SelectTrigger className="h-8 text-[12px]"><SelectValue placeholder="~" /></SelectTrigger>
-                              <SelectContent>
-                                {METHOD_OPTIONS.map((m) => (
-                                  <SelectItem key={m} value={m} className="text-[12px]">{m}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-1.5">
-                            <Label className="text-[12px]">Réponse reçue</Label>
-                            <Select value={relaunchForm.response} onValueChange={(v) => handleRelaunchChange('response', v)}>
-                              <SelectTrigger className="h-8 text-[12px]"><SelectValue placeholder="~" /></SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="true" className="text-[12px]">Oui</SelectItem>
-                                <SelectItem value="false" className="text-[12px]">Non</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                        <div className="space-y-1.5">
-                          <Label className="text-[12px]">Notes</Label>
-                          <Textarea
-                            rows={2}
-                            value={relaunchForm.notes}
-                            onChange={(e) => handleRelaunchChange('notes', e.target.value)}
-                            className="text-[12px]"
-                            placeholder="Détails de la relance…"
-                          />
-                        </div>
-                        <div className="flex justify-end gap-2">
-                          <Button type="button" variant="outline" size="sm" className="text-[12px] h-7" onClick={cancelRelaunchForm}>
-                            Annuler
-                          </Button>
-                          <Button type="button" size="sm" className="text-[12px] h-7" onClick={handleRelaunchSubmit} disabled={savingRelaunch}>
-                            {savingRelaunch ? '…' : 'Ajouter'}
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="text-[12px] gap-1.5 w-full border-dashed"
-                        onClick={openNewRelaunch}
-                      >
-                        <Plus className="h-3.5 w-3.5" /> Ajouter une relance
-                      </Button>
-                    )}
-
-                    {/* Existing relaunches */}
-                    {sortedRelaunches.length > 0 ? (
-                      <div className="space-y-2">
-                        {sortedRelaunches.map((r) => (
-                          <div key={r.id} className="rounded-lg border bg-muted/20 overflow-hidden text-[13px]">
-                            <div
-                              className="flex items-center gap-3 px-3 py-2.5 cursor-pointer hover:bg-muted/30 transition-colors group"
-                              onClick={() => toggleEditRelaunch(r)}
-                            >
-                              {editingRelaunchId === r.id ? <ChevronDown className="h-4 w-4 text-primary" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-                              <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
-                                <span className="font-medium">{formatDate(r.date)}</span>
-                                {r.method && (
-                                  <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">
-                                    {r.method}
-                                  </span>
-                                )}
-                                {responseBadge(r.response)}
-                              </div>
-                              <button
-                                type="button"
-                                onClick={(e) => { e.stopPropagation(); deleteRelaunch(r.id); }}
-                                className="p-1 rounded hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100"
-                                title="Supprimer"
-                              >
-                                <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                              </button>
-                            </div>
-
-                            {/* Expanded Edit Form */}
-                            {editingRelaunchId === r.id && (
-                              <div className="p-3 border-t bg-background space-y-3 animate-in slide-in-from-top-1 duration-200">
-                                <div className="grid grid-cols-3 gap-3">
-                                  <div className="space-y-1.5">
-                                    <Label className="text-[12px]">Date</Label>
-                                    <Input
-                                      type="date"
-                                      value={relaunchForm.date}
-                                      onChange={(e) => handleRelaunchChange('date', e.target.value)}
-                                      className="h-8 text-[12px]"
-                                    />
-                                  </div>
-                                  <div className="space-y-1.5">
-                                    <Label className="text-[12px]">Méthode</Label>
-                                    <Select value={relaunchForm.method} onValueChange={(v) => handleRelaunchChange('method', v)}>
-                                      <SelectTrigger className="h-8 text-[12px]"><SelectValue placeholder="~" /></SelectTrigger>
-                                      <SelectContent>
-                                        {METHOD_OPTIONS.map((m) => (
-                                          <SelectItem key={m} value={m} className="text-[12px]">{m}</SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                  <div className="space-y-1.5">
-                                    <Label className="text-[12px]">Réponse reçue</Label>
-                                    <Select value={relaunchForm.response} onValueChange={(v) => handleRelaunchChange('response', v)}>
-                                      <SelectTrigger className="h-8 text-[12px]"><SelectValue placeholder="~" /></SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="true" className="text-[12px]">Oui</SelectItem>
-                                        <SelectItem value="false" className="text-[12px]">Non</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                </div>
-                                <div className="space-y-1.5">
-                                  <Label className="text-[12px]">Notes</Label>
-                                  <Textarea
-                                    rows={2}
-                                    value={relaunchForm.notes}
-                                    onChange={(e) => handleRelaunchChange('notes', e.target.value)}
-                                    className="text-[12px]"
-                                    placeholder="~"
-                                  />
-                                </div>
-                                <div className="flex justify-end gap-2">
-                                  <Button type="button" variant="outline" size="sm" className="text-[12px] h-7" onClick={cancelRelaunchForm}>
-                                    Annuler
-                                  </Button>
-                                  <Button type="button" size="sm" className="text-[12px] h-7" onClick={handleRelaunchSubmit} disabled={savingRelaunch}>
-                                    {savingRelaunch ? '…' : 'Enregistrer'}
-                                  </Button>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    ) : editingRelaunchId !== 'new' && (
-                      <p className="text-[12px] text-muted-foreground text-center py-2">Aucune relance enregistrée.</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+        {(filters.status !== 'All' || filters.priority !== 'All' || filters.needsRelaunch || !filters.hideInactive) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 text-[12px] text-muted-foreground hover:text-foreground ml-auto"
+            onClick={() => setFilters({ hideInactive: true, status: 'All', priority: 'All', needsRelaunch: false })}
+          >
+            Réinitialiser
+          </Button>
+        )}
       </div>
 
       {loading ? (
