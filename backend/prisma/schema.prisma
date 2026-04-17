@@ -26,5 +26,5 @@ model Application {
   jobTitle    String?
   notes       String?  @db.Text
   userId      Int
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -110,6 +110,48 @@ app.patch("/api/auth/edit-password", authenticate, async (req, res) => {
   }
 });
 
+// Suppression compte
+app.delete("/api/auth/delete-account", authenticate, async (req, res) => {
+  const { password } = req.body;
+  const userId = req.userId;
+
+  if (!password) {
+    return res.status(400).json({
+      error: "Le mot de passe est requis",
+    });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+
+    // Vérification mot de passe
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        error: "Mot de passe incorrect",
+      });
+    }
+
+    // Suppression en cascade
+    await prisma.user.delete({
+      where: { id: userId },
+    });
+
+    res.json({ message: "Compte supprimé définitivement" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Erreur lors de la suppression du compte",
+    });
+  }
+});
+
 // --- ROUTES APPLICATIONS ---
 // Tout charger
 app.get("/api/applications", authenticate, async (req, res) => {
