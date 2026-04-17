@@ -6,15 +6,18 @@ const JWT_SECRET = process.env.JWT_SECRET || "1234567890";
 
 // Inscription
 exports.register = async (req, res) => {
-  const { email, password } = req.body;
+  const { name, lastname, email, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
   try {
     const user = await prisma.user.create({
-      data: { email, password: hashedPassword },
+      data: { name, lastname, email, password: hashedPassword },
     });
     res.status(201).json({ message: "Utilisateur créé" });
   } catch (e) {
-    res.status(400).json({ error: "Cet email est déjà utilisé" });
+    console.error("Erreur complète:", e);
+    console.error("Code:", e.code);
+    console.error("Message:", e.message);
+    res.status(400).json({ error: e.message }); // Affiche le message réel
   }
 };
 
