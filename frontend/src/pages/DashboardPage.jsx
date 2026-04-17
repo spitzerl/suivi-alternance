@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Search, Filter, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown, Trash2, Pencil, ChevronDown, ChevronUp, ChevronRight, RotateCcw, Check, X, Bell } from 'lucide-react';
+import { Plus, Search, Filter, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown, Trash2, Pencil, ChevronDown, ChevronUp, ChevronRight, RotateCcw, Check, X, Bell, Download, Upload } from 'lucide-react';
 
 const STATUS_OPTIONS = [
   { value: 'En attente', color: 'bg-yellow-100 text-yellow-800' },
@@ -421,6 +421,41 @@ export default function DashboardPage() {
     return [...relaunches].sort((a, b) => new Date(b.date) - new Date(a.date));
   }, [relaunches]);
 
+  const handleExportJSON = () => {
+    const dataStr = JSON.stringify(applications, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `candidatures_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportJSON = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const json = JSON.parse(event.target.result);
+        setLoading(true);
+        await api.post('/applications/bulk', json);
+        fetchApplications();
+        // Message informatif ou toast ici si possible, sinon le refresh suffit
+      } catch (err) {
+        setError(err.response?.data?.error || "Erreur lors de l'importation. Vérifiez le format du fichier.");
+        setLoading(false);
+      } finally {
+        e.target.value = '';
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <div className="max-w-[1600px] mx-auto w-full px-6 py-10 space-y-6">
       <div className="flex items-center justify-between">
@@ -441,6 +476,26 @@ export default function DashboardPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 h-9 text-[13px]"
             />
+          </div>
+
+          <div className="flex items-center gap-1.5 border-l pl-3 ml-1">
+            <Button variant="outline" size="sm" className="h-9 px-2.5 text-muted-foreground hover:text-foreground" onClick={handleExportJSON} title="Exporter en JSON">
+              <Download className="h-4 w-4" />
+            </Button>
+            <div className="relative">
+              <Input
+                type="file"
+                accept=".json"
+                onChange={handleImportJSON}
+                className="hidden"
+                id="json-import"
+              />
+              <Button variant="outline" size="sm" className="h-9 px-2.5 text-muted-foreground hover:text-foreground" asChild title="Importer du JSON">
+                <label htmlFor="json-import" className="cursor-pointer">
+                  <Upload className="h-4 w-4" />
+                </label>
+              </Button>
+            </div>
           </div>
 
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

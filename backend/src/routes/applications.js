@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.get("/", authenticate, applicationController.getAll);
 router.post("/", authenticate, applicationController.create);
+router.post("/bulk", authenticate, applicationController.bulkCreate);
 router.patch("/:id", authenticate, applicationController.update);
 
 module.exports = router;
