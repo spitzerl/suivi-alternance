@@ -1,33 +1,33 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in
   if (isAuthenticated) {
-    navigate('/dashboard', { replace: true });
+    navigate("/dashboard", { replace: true });
     return null;
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
     try {
       await login({ email, password });
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.error || 'Erreur de connexion');
+      setError(err.response?.data?.error || "Erreur de connexion");
     } finally {
       setLoading(false);
     }
@@ -51,7 +51,9 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-[13px]">Email</Label>
+            <Label htmlFor="email" className="text-[13px]">
+              Email
+            </Label>
             <Input
               id="email"
               type="email"
@@ -63,7 +65,9 @@ export default function LoginPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="password" className="text-[13px]">Mot de passe</Label>
+            <Label htmlFor="password" className="text-[13px]">
+              Mot de passe
+            </Label>
             <Input
               id="password"
               type="password"
@@ -73,14 +77,21 @@ export default function LoginPage() {
               className="h-10"
             />
           </div>
-          <Button type="submit" className="w-full h-10 text-[13px] font-medium mt-2" disabled={loading}>
-            {loading ? 'Connexion…' : 'Se connecter'}
+          <Button
+            type="submit"
+            className="w-full h-10 text-[13px] font-medium mt-2"
+            disabled={loading}
+          >
+            {loading ? "Connexion…" : "Se connecter"}
           </Button>
         </form>
 
         <p className="text-center text-[13px] text-muted-foreground">
-          Pas encore de compte ?{' '}
-          <Link to="/register" className="text-primary font-medium hover:underline">
+          Pas encore de compte ?{" "}
+          <Link
+            to="/register"
+            className="text-primary font-medium hover:underline"
+          >
             Créer un compte
           </Link>
         </p>

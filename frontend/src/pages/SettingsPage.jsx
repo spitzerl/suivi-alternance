@@ -1,29 +1,38 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function SettingsPage() {
-  const { email, editPassword, deleteAccount, getProfile, updateProfile } = useAuth();
+  const { email, editPassword, deleteAccount, getProfile, updateProfile } =
+    useAuth();
   const navigate = useNavigate();
 
   // Profile state
-  const [profileData, setProfileData] = useState({ name: '', lastname: '', email: '' });
-  const [profileError, setProfileError] = useState('');
-  const [profileSuccess, setProfileSuccess] = useState('');
+  const [profileData, setProfileData] = useState({
+    name: "",
+    lastname: "",
+    email: "",
+  });
+  const [profileError, setProfileError] = useState("");
+  const [profileSuccess, setProfileSuccess] = useState("");
   const [profileLoading, setProfileLoading] = useState(false);
 
   // Change password state
-  const [pwdData, setPwdData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
-  const [pwdError, setPwdError] = useState('');
-  const [pwdSuccess, setPwdSuccess] = useState('');
+  const [pwdData, setPwdData] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [pwdError, setPwdError] = useState("");
+  const [pwdSuccess, setPwdSuccess] = useState("");
   const [pwdLoading, setPwdLoading] = useState(false);
 
   // Delete account state
-  const [deletePassword, setDeletePassword] = useState('');
-  const [deleteError, setDeleteError] = useState('');
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -32,12 +41,12 @@ export default function SettingsPage() {
       try {
         const data = await getProfile();
         setProfileData({
-          name: data.name || '',
-          lastname: data.lastname || '',
-          email: data.email || ''
+          name: data.name || "",
+          lastname: data.lastname || "",
+          email: data.email || "",
         });
       } catch (err) {
-        console.error('Failed to fetch profile', err);
+        console.error("Failed to fetch profile", err);
       }
     };
     fetchProfile();
@@ -45,15 +54,17 @@ export default function SettingsPage() {
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
-    setProfileError('');
-    setProfileSuccess('');
+    setProfileError("");
+    setProfileSuccess("");
     setProfileLoading(true);
 
     try {
       await updateProfile(profileData);
-      setProfileSuccess('Profil mis à jour avec succès.');
+      setProfileSuccess("Profil mis à jour avec succès.");
     } catch (err) {
-      setProfileError(err.response?.data?.error || 'Erreur lors de la mise à jour du profil.');
+      setProfileError(
+        err.response?.data?.error || "Erreur lors de la mise à jour du profil.",
+      );
     } finally {
       setProfileLoading(false);
     }
@@ -61,25 +72,29 @@ export default function SettingsPage() {
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
-    setPwdError('');
-    setPwdSuccess('');
+    setPwdError("");
+    setPwdSuccess("");
 
     if (pwdData.newPassword !== pwdData.confirmPassword) {
-      setPwdError('Les mots de passe ne correspondent pas.');
+      setPwdError("Les mots de passe ne correspondent pas.");
       return;
     }
     if (pwdData.newPassword.length < 8) {
-      setPwdError('Le nouveau mot de passe doit contenir au moins 8 caractères.');
+      setPwdError(
+        "Le nouveau mot de passe doit contenir au moins 8 caractères.",
+      );
       return;
     }
 
     setPwdLoading(true);
     try {
       await editPassword(pwdData.oldPassword, pwdData.newPassword);
-      setPwdSuccess('Mot de passe modifié avec succès.');
-      setPwdData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+      setPwdSuccess("Mot de passe modifié avec succès.");
+      setPwdData({ oldPassword: "", newPassword: "", confirmPassword: "" });
     } catch (err) {
-      setPwdError(err.response?.data?.error || 'Erreur lors de la modification.');
+      setPwdError(
+        err.response?.data?.error || "Erreur lors de la modification.",
+      );
     } finally {
       setPwdLoading(false);
     }
@@ -87,13 +102,15 @@ export default function SettingsPage() {
 
   const handleDelete = async (e) => {
     e.preventDefault();
-    setDeleteError('');
+    setDeleteError("");
     setDeleteLoading(true);
     try {
       await deleteAccount(deletePassword);
-      navigate('/login');
+      navigate("/login");
     } catch (err) {
-      setDeleteError(err.response?.data?.error || 'Erreur lors de la suppression.');
+      setDeleteError(
+        err.response?.data?.error || "Erreur lors de la suppression.",
+      );
     } finally {
       setDeleteLoading(false);
     }
@@ -104,7 +121,8 @@ export default function SettingsPage() {
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">Paramètres</h1>
         <p className="text-sm text-muted-foreground">
-          Connecté en tant que <span className="font-medium text-foreground">{email}</span>
+          Connecté en tant que{" "}
+          <span className="font-medium text-foreground">{email}</span>
         </p>
       </div>
 
@@ -112,34 +130,76 @@ export default function SettingsPage() {
       <section className="space-y-4 border rounded-lg p-5">
         <div>
           <h2 className="text-[15px] font-medium">Informations personnelles</h2>
-          <p className="text-[13px] text-muted-foreground mt-0.5">Mettez à jour vos informations de compte.</p>
+          <p className="text-[13px] text-muted-foreground mt-0.5">
+            Mettez à jour vos informations de compte.
+          </p>
         </div>
 
         {profileError && (
-          <div className="text-[13px] text-destructive bg-destructive/10 rounded-md px-3 py-2">{profileError}</div>
+          <div className="text-[13px] text-destructive bg-destructive/10 rounded-md px-3 py-2">
+            {profileError}
+          </div>
         )}
         {profileSuccess && (
-          <div className="text-[13px] text-green-700 bg-green-50 rounded-md px-3 py-2">{profileSuccess}</div>
+          <div className="text-[13px] text-green-700 bg-green-50 rounded-md px-3 py-2">
+            {profileSuccess}
+          </div>
         )}
 
         <form onSubmit={handleProfileUpdate} className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="name" className="text-[13px]">Prénom</Label>
-              <Input id="name" value={profileData.name} onChange={(e) => setProfileData({ ...profileData, name: e.target.value })} className="h-10" />
+              <Label htmlFor="name" className="text-[13px]">
+                Prénom
+              </Label>
+              <Input
+                id="name"
+                value={profileData.name}
+                onChange={(e) =>
+                  setProfileData({ ...profileData, name: e.target.value })
+                }
+                className="h-10"
+              />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="lastname" className="text-[13px]">Nom</Label>
-              <Input id="lastname" value={profileData.lastname} onChange={(e) => setProfileData({ ...profileData, lastname: e.target.value })} className="h-10" />
+              <Label htmlFor="lastname" className="text-[13px]">
+                Nom
+              </Label>
+              <Input
+                id="lastname"
+                value={profileData.lastname}
+                onChange={(e) =>
+                  setProfileData({ ...profileData, lastname: e.target.value })
+                }
+                className="h-10"
+              />
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-[13px]">Email</Label>
-            <Input id="email" type="email" required value={profileData.email} onChange={(e) => setProfileData({ ...profileData, email: e.target.value })} className="h-10" />
+            <Label htmlFor="email" className="text-[13px]">
+              Email
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              required
+              value={profileData.email}
+              onChange={(e) =>
+                setProfileData({ ...profileData, email: e.target.value })
+              }
+              className="h-10"
+            />
           </div>
           <div className="flex justify-end pt-1">
-            <Button type="submit" size="sm" className="text-[13px]" disabled={profileLoading}>
-              {profileLoading ? 'Enregistrement…' : 'Enregistrer les modifications'}
+            <Button
+              type="submit"
+              size="sm"
+              className="text-[13px]"
+              disabled={profileLoading}
+            >
+              {profileLoading
+                ? "Enregistrement…"
+                : "Enregistrer les modifications"}
             </Button>
           </div>
         </form>
@@ -149,32 +209,76 @@ export default function SettingsPage() {
       <section className="space-y-4 border rounded-lg p-5">
         <div>
           <h2 className="text-[15px] font-medium">Changer le mot de passe</h2>
-          <p className="text-[13px] text-muted-foreground mt-0.5">Le nouveau mot de passe doit contenir au moins 8 caractères.</p>
+          <p className="text-[13px] text-muted-foreground mt-0.5">
+            Le nouveau mot de passe doit contenir au moins 8 caractères.
+          </p>
         </div>
 
         {pwdError && (
-          <div className="text-[13px] text-destructive bg-destructive/10 rounded-md px-3 py-2">{pwdError}</div>
+          <div className="text-[13px] text-destructive bg-destructive/10 rounded-md px-3 py-2">
+            {pwdError}
+          </div>
         )}
         {pwdSuccess && (
-          <div className="text-[13px] text-green-700 bg-green-50 rounded-md px-3 py-2">{pwdSuccess}</div>
+          <div className="text-[13px] text-green-700 bg-green-50 rounded-md px-3 py-2">
+            {pwdSuccess}
+          </div>
         )}
 
         <form onSubmit={handlePasswordChange} className="space-y-3">
           <div className="space-y-1.5">
-            <Label htmlFor="oldPassword" className="text-[13px]">Mot de passe actuel</Label>
-            <Input id="oldPassword" type="password" required value={pwdData.oldPassword} onChange={(e) => setPwdData({ ...pwdData, oldPassword: e.target.value })} className="h-10" />
+            <Label htmlFor="oldPassword" className="text-[13px]">
+              Mot de passe actuel
+            </Label>
+            <Input
+              id="oldPassword"
+              type="password"
+              required
+              value={pwdData.oldPassword}
+              onChange={(e) =>
+                setPwdData({ ...pwdData, oldPassword: e.target.value })
+              }
+              className="h-10"
+            />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="newPassword" className="text-[13px]">Nouveau mot de passe</Label>
-            <Input id="newPassword" type="password" required value={pwdData.newPassword} onChange={(e) => setPwdData({ ...pwdData, newPassword: e.target.value })} className="h-10" />
+            <Label htmlFor="newPassword" className="text-[13px]">
+              Nouveau mot de passe
+            </Label>
+            <Input
+              id="newPassword"
+              type="password"
+              required
+              value={pwdData.newPassword}
+              onChange={(e) =>
+                setPwdData({ ...pwdData, newPassword: e.target.value })
+              }
+              className="h-10"
+            />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="confirmPassword" className="text-[13px]">Confirmer le nouveau mot de passe</Label>
-            <Input id="confirmPassword" type="password" required value={pwdData.confirmPassword} onChange={(e) => setPwdData({ ...pwdData, confirmPassword: e.target.value })} className="h-10" />
+            <Label htmlFor="confirmPassword" className="text-[13px]">
+              Confirmer le nouveau mot de passe
+            </Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              required
+              value={pwdData.confirmPassword}
+              onChange={(e) =>
+                setPwdData({ ...pwdData, confirmPassword: e.target.value })
+              }
+              className="h-10"
+            />
           </div>
           <div className="flex justify-end pt-1">
-            <Button type="submit" size="sm" className="text-[13px]" disabled={pwdLoading}>
-              {pwdLoading ? 'Modification…' : 'Modifier le mot de passe'}
+            <Button
+              type="submit"
+              size="sm"
+              className="text-[13px]"
+              disabled={pwdLoading}
+            >
+              {pwdLoading ? "Modification…" : "Modifier le mot de passe"}
             </Button>
           </div>
         </form>
@@ -183,30 +287,66 @@ export default function SettingsPage() {
       {/* Delete account */}
       <section className="space-y-4 border border-destructive/20 rounded-lg p-5">
         <div>
-          <h2 className="text-[15px] font-medium text-destructive">Supprimer le compte</h2>
-          <p className="text-[13px] text-muted-foreground mt-0.5">Cette action est irréversible. Toutes vos données seront supprimées.</p>
+          <h2 className="text-[15px] font-medium text-destructive">
+            Supprimer le compte
+          </h2>
+          <p className="text-[13px] text-muted-foreground mt-0.5">
+            Cette action est irréversible. Toutes vos données seront supprimées.
+          </p>
         </div>
 
         {!showDeleteConfirm ? (
-          <Button variant="destructive" size="sm" className="text-[13px]" onClick={() => setShowDeleteConfirm(true)}>
+          <Button
+            variant="destructive"
+            size="sm"
+            className="text-[13px]"
+            onClick={() => setShowDeleteConfirm(true)}
+          >
             Supprimer mon compte
           </Button>
         ) : (
           <>
             {deleteError && (
-              <div className="text-[13px] text-destructive bg-destructive/10 rounded-md px-3 py-2">{deleteError}</div>
+              <div className="text-[13px] text-destructive bg-destructive/10 rounded-md px-3 py-2">
+                {deleteError}
+              </div>
             )}
             <form onSubmit={handleDelete} className="space-y-3">
               <div className="space-y-1.5">
-                <Label htmlFor="deletePassword" className="text-[13px]">Confirmez avec votre mot de passe</Label>
-                <Input id="deletePassword" type="password" required value={deletePassword} onChange={(e) => setDeletePassword(e.target.value)} className="h-10" />
+                <Label htmlFor="deletePassword" className="text-[13px]">
+                  Confirmez avec votre mot de passe
+                </Label>
+                <Input
+                  id="deletePassword"
+                  type="password"
+                  required
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  className="h-10"
+                />
               </div>
               <div className="flex gap-2 justify-end pt-1">
-                <Button type="button" variant="outline" size="sm" className="text-[13px]" onClick={() => { setShowDeleteConfirm(false); setDeletePassword(''); setDeleteError(''); }}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="text-[13px]"
+                  onClick={() => {
+                    setShowDeleteConfirm(false);
+                    setDeletePassword("");
+                    setDeleteError("");
+                  }}
+                >
                   Annuler
                 </Button>
-                <Button type="submit" variant="destructive" size="sm" className="text-[13px]" disabled={deleteLoading}>
-                  {deleteLoading ? 'Suppression…' : 'Confirmer la suppression'}
+                <Button
+                  type="submit"
+                  variant="destructive"
+                  size="sm"
+                  className="text-[13px]"
+                  disabled={deleteLoading}
+                >
+                  {deleteLoading ? "Suppression…" : "Confirmer la suppression"}
                 </Button>
               </div>
             </form>

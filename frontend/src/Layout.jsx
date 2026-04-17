@@ -1,9 +1,9 @@
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/context/AuthContext';
-import { GraduationCap, LogOut, Sun, Moon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useTheme } from '@/context/ThemeContext';
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import { GraduationCap, LogOut, Sun, Moon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function Layout() {
   const location = useLocation();
@@ -13,16 +13,21 @@ export default function Layout() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b border-border/60">
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5 text-foreground hover:opacity-80 transition-opacity">
+          <Link
+            to="/"
+            className="flex items-center gap-2.5 text-foreground hover:opacity-80 transition-opacity"
+          >
             <GraduationCap className="h-5 w-5 text-primary" />
-            <span className="font-semibold text-[15px] tracking-tight">Suivi Alternance</span>
+            <span className="font-semibold text-[15px] tracking-tight">
+              Suivi Alternance
+            </span>
           </Link>
 
           <nav className="flex items-center gap-1">
@@ -32,7 +37,11 @@ export default function Layout() {
               onClick={toggleTheme}
               className="mr-1 text-muted-foreground hover:text-foreground h-8 w-8 p-0"
             >
-              {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+              {theme === "light" ? (
+                <Moon className="h-4 w-4" />
+              ) : (
+                <Sun className="h-4 w-4" />
+              )}
             </Button>
 
             {!isAuthenticated ? (
@@ -41,9 +50,9 @@ export default function Layout() {
                   to="/login"
                   className={cn(
                     "px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors",
-                    location.pathname === '/login'
+                    location.pathname === "/login"
                       ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
                   )}
                 >
                   Connexion
@@ -52,9 +61,9 @@ export default function Layout() {
                   to="/register"
                   className={cn(
                     "px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors",
-                    location.pathname === '/register'
+                    location.pathname === "/register"
                       ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
                   )}
                 >
                   Inscription
@@ -66,9 +75,9 @@ export default function Layout() {
                   to="/dashboard"
                   className={cn(
                     "px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors",
-                    location.pathname === '/dashboard'
+                    location.pathname === "/dashboard"
                       ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
                   )}
                 >
                   Candidatures
@@ -77,15 +86,22 @@ export default function Layout() {
                   to="/settings"
                   className={cn(
                     "px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors",
-                    location.pathname === '/settings'
+                    location.pathname === "/settings"
                       ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
                   )}
                 >
                   Paramètres
                 </Link>
-                <span className="text-[12px] text-muted-foreground ml-2 hidden sm:inline">{email}</span>
-                <Button variant="ghost" size="sm" onClick={handleLogout} className="ml-1 text-muted-foreground hover:text-foreground h-8 w-8 p-0">
+                <span className="text-[12px] text-muted-foreground ml-2 hidden sm:inline">
+                  {email}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="ml-1 text-muted-foreground hover:text-foreground h-8 w-8 p-0"
+                >
                   <LogOut className="h-4 w-4" />
                 </Button>
               </>
