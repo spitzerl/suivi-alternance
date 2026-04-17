@@ -61,6 +61,55 @@ app.post("/api/auth/login", async (req, res) => {
   res.json({ token, email: user.email });
 });
 
+// Modification du mot de passe
+app.patch("/api/auth/edit-password", authenticate, async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const userId = req.userId;
+
+  if (!oldPassword || !newPassword) {
+    return res.status(400).json({
+      error: "Ancien et nouveau mot de passe requis",
+    });
+  }
+
+  if (newPassword.length < 8) {
+    return res.status(400).json({
+      error: "Le nouveau mot de passe doit contenir au moins 8 caractères",
+    });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        error: "Ancien mot de passe incorrect",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    res.json({ message: "Mot de passe modifié avec succès" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Erreur lors de la modification du mot de passe",
+    });
+  }
+});
+
 // --- ROUTES APPLICATIONS ---
 // Tout charger
 app.get("/api/applications", authenticate, async (req, res) => {
