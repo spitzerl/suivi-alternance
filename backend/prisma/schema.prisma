@@ -21,12 +21,38 @@ model User {
 }
 
 model Application {
-  id          Int      @id @default(autoincrement())
-  companyName String
-  status      String
-  dateContact DateTime @default(now())
-  jobTitle    String?
-  notes       String?  @db.Text
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              Int        @id @default(autoincrement())
+  companyName     String
+  status          String
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  dateApplication DateTime?
+  relaunches      Relaunch[]
+  jobTitle        String?
+  notes           String?    @db.Text
+  priority        Int?
+  applicationUrl  String?
+  salary          String?
+  location        String?
+  source          String?
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Relaunch {
+  id            Int      @id @default(autoincrement())
+  applicationId Int
+  date          DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  method        String?
+  notes         String?  @db.Text
+  response      Boolean?
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
 }

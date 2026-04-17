@@ -4,26 +4,75 @@ const prisma = require("../config/prisma");
 exports.getAll = async (req, res) => {
   const apps = await prisma.application.findMany({
     where: { userId: req.userId },
-    orderBy: { dateContact: "desc" },
+    orderBy: { dateApplication: "desc" },
+    include: { relaunches: true },
   });
   res.json(apps);
 };
 
 // Ajouter une candidature
 exports.create = async (req, res) => {
-  const { company, status, jobTitle, notes } = req.body;
+  const {
+    companyName,
+    status,
+    jobTitle,
+    notes,
+    dateApplication,
+    priority,
+    applicationUrl,
+    salary,
+    location,
+    source,
+  } = req.body;
+
   const app = await prisma.application.create({
-    data: { company, status, jobTitle, notes, userId: req.userId },
+    data: {
+      companyName,
+      status,
+      jobTitle,
+      notes,
+      dateApplication,
+      priority,
+      applicationUrl,
+      salary,
+      location,
+      source,
+      userId: req.userId,
+    },
   });
   res.json(app);
 };
 
 // Modifier une candidature
 exports.update = async (req, res) => {
-  const { status, notes } = req.body;
+  const {
+    status,
+    notes,
+    companyName,
+    jobTitle,
+    priority,
+    applicationUrl,
+    salary,
+    location,
+    source,
+    dateApplication,
+  } = req.body;
+
   const updated = await prisma.application.update({
     where: { id: parseInt(req.params.id) },
-    data: { status, notes },
+    data: {
+      status,
+      notes,
+      companyName,
+      jobTitle,
+      priority,
+      applicationUrl,
+      salary,
+      location,
+      source,
+      dateApplication,
+    },
+    include: { relaunches: true },
   });
   res.json(updated);
 };
