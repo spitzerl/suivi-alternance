@@ -1,13 +1,15 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
-import { GraduationCap, LogOut } from 'lucide-react';
+import { GraduationCap, LogOut, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, email, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogout = () => {
     logout();
@@ -24,6 +26,15 @@ export default function Layout() {
           </Link>
 
           <nav className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleTheme}
+              className="mr-1 text-muted-foreground hover:text-foreground h-8 w-8 p-0"
+            >
+              {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+            </Button>
+
             {!isAuthenticated ? (
               <>
                 <Link

@@ -11,12 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, Search, Filter, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown, Trash2, Pencil, ChevronDown, ChevronUp, ChevronRight, RotateCcw, Check, X, Bell, Download, Upload } from 'lucide-react';
 
 const STATUS_OPTIONS = [
-  { value: 'En attente', color: 'bg-yellow-100 text-yellow-800' },
-  { value: 'Entretien', color: 'bg-blue-100 text-blue-800' },
-  { value: 'Acceptée', color: 'bg-green-100 text-green-800' },
-  { value: 'Refusée', color: 'bg-red-100 text-red-800' },
-  { value: 'Abandonnée', color: 'bg-gray-100 text-gray-800' },
-  { value: 'Relancée', color: 'bg-purple-100 text-purple-800' },
+  { value: 'En attente', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' },
+  { value: 'Entretien', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' },
+  { value: 'Acceptée', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' },
+  { value: 'Refusée', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+  { value: 'Abandonnée', color: 'bg-gray-100 text-gray-800 dark:bg-gray-800/50 dark:text-gray-400' },
+  { value: 'Relancée', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' },
 ];
 
 const STATUS_ORDER = { 'Acceptée': 0, 'Entretien': 1, 'Relancée': 2, 'En attente': 3, 'Refusée': 4, 'Abandonnée': 5 };
@@ -70,11 +70,11 @@ function statusBadge(status) {
 function priorityBadge(priority, highlight) {
   if (priority == null) return <span className="text-muted-foreground">~</span>;
   const colors = {
-    1: 'bg-gray-100 text-gray-600',
-    2: 'bg-blue-100 text-blue-700',
-    3: 'bg-yellow-100 text-yellow-700',
-    4: 'bg-orange-100 text-orange-700',
-    5: 'bg-red-100 text-red-700',
+    1: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
+    2: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    3: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+    4: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+    5: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
   };
   return (
     <span className={`inline-flex items-center justify-center rounded-full w-6 h-6 text-[11px] font-semibold ${colors[priority] || 'bg-gray-100 text-gray-600'}`}>
@@ -84,8 +84,8 @@ function priorityBadge(priority, highlight) {
 }
 
 function responseBadge(response) {
-  if (response === true) return <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-green-100 text-green-700">Oui</span>;
-  if (response === false) return <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-red-100 text-red-700">Non</span>;
+  if (response === true) return <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Oui</span>;
+  if (response === false) return <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Non</span>;
   return <span className="text-muted-foreground text-[11px]">~</span>;
 }
 
@@ -107,7 +107,7 @@ function HighlightedText({ text, highlight }) {
     <span>
       {parts.map((part, i) =>
         part.toLowerCase() === highlight.toLowerCase()
-          ? <mark key={i} className="bg-yellow-200 text-inherit p-0 rounded-sm">{part}</mark>
+          ? <mark key={i} className="bg-yellow-200 dark:bg-yellow-500/30 text-inherit p-0 rounded-sm">{part}</mark>
           : part
       )}
     </span>
@@ -584,7 +584,7 @@ export default function DashboardPage() {
                     className="flex items-center gap-2 w-full text-left group"
                     onClick={() => setRelaunchesExpanded((v) => !v)}
                   >
-                    <RotateCcw className="h-4 w-4 text-muted-foreground" />
+                    <RotateCcw className="h-4 w-4 text-muted-foreground dark:text-purple-400/70" />
                     <span className="text-[14px] font-medium">Relances</span>
                     <span className="text-[12px] text-muted-foreground ml-1">({relaunches.length})</span>
                     {relaunchesExpanded
@@ -644,7 +644,7 @@ export default function DashboardPage() {
                                 {editingRelaunchId === r.id ? <ChevronDown className="h-4 w-4 text-primary" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
                                 <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
                                   <span className="font-medium">{formatDate(r.date)}</span>
-                                  {r.method && <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700">{r.method}</span>}
+                                  {r.method && <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">{r.method}</span>}
                                   {responseBadge(r.response)}
                                 </div>
                                 <button type="button" onClick={(e) => { e.stopPropagation(); deleteRelaunch(r.id); }} className="p-1 rounded hover:bg-destructive/10 opacity-0 group-hover:opacity-100"><Trash2 className="h-3.5 w-3.5 text-destructive" /></button>
@@ -688,7 +688,7 @@ export default function DashboardPage() {
           <Button
             variant={filters.needsRelaunch ? 'secondary' : 'outline'}
             size="sm"
-            className="h-8 text-[12px] gap-1.5 text-orange-600 border-orange-200 bg-orange-50 hover:bg-orange-100"
+            className="h-8 text-[12px] gap-1.5 text-orange-600 border-orange-200 bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/10 dark:text-orange-400 dark:border-orange-800 dark:hover:bg-orange-900/20"
             onClick={() => toggleFilter('needsRelaunch')}
           >
             <Bell className="h-3 w-3" />
@@ -798,7 +798,7 @@ export default function DashboardPage() {
                   <TableCell>{priorityBadge(app.priority, searchQuery)}</TableCell>
                   <TableCell>
                     {(app.relaunches?.length || 0) > 0 ? (
-                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium bg-purple-100 text-purple-700">
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
                         <RotateCcw className="h-3 w-3" />
                         <HighlightedText text={app.relaunches.length} highlight={searchQuery} />
                       </span>
