@@ -120,3 +120,42 @@ exports.deleteAccount = async (req, res) => {
     });
   }
 };
+
+// Récupérer le profil
+exports.getProfile = async (req, res) => {
+  const userId = req.userId;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, name: true, lastname: true, email: true },
+    });
+    if (!user) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur lors de la récupération du profil" });
+  }
+};
+
+// Mettre à jour le profil
+exports.updateProfile = async (req, res) => {
+  const userId = req.userId;
+  const { name, lastname, email } = req.body;
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { name, lastname, email },
+      select: { id: true, name: true, lastname: true, email: true },
+    });
+    res.json(updatedUser);
+  } catch (error) {
+    console.error(error);
+    if (error.code === "P2002") {
+      return res.status(400).json({ error: "Cet email est déjà utilisé" });
+    }
+    res.status(500).json({ error: "Erreur lors de la mise à jour du profil" });
+  }
+};

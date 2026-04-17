@@ -42,8 +42,22 @@ export function AuthProvider({ children }) {
     return res.data;
   };
 
+  const getProfile = async () => {
+    const res = await api.get('/auth/profile');
+    return res.data;
+  };
+
+  const updateProfile = async (data) => {
+    const res = await api.patch('/auth/profile', data);
+    if (res.data.email) {
+      localStorage.setItem('email', res.data.email);
+      setEmail(res.data.email);
+    }
+    return res.data;
+  };
+
   return (
-    <AuthContext.Provider value={{ token, email, isAuthenticated, login, register, logout, editPassword, deleteAccount }}>
+    <AuthContext.Provider value={{ token, email, isAuthenticated, login, register, logout, editPassword, deleteAccount, getProfile, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );
