@@ -2,7 +2,13 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const prisma = require("../config/prisma");
 
-const JWT_SECRET = process.env.JWT_SECRET || "1234567890";
+const getJwtSecret = () => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET is not defined");
+  }
+  return secret;
+};
 
 // Inscription
 exports.register = async (req, res) => {
@@ -28,7 +34,9 @@ exports.login = async (req, res) => {
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return res.status(401).json({ error: "Identifiants invalides" });
   }
-  const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "24h" });
+  const token = jwt.sign({ userId: user.id }, getJwtSecret(), { 
+    expiresIn: process.env.JWT_EXPIRY || "24h" 
+  });
   res.json({ token, email: user.email });
 };
 
