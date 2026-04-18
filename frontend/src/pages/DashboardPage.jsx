@@ -26,6 +26,7 @@ export default function DashboardPage() {
     fetchApplications,
     relaunchThreshold,
     setRelaunchThreshold,
+    fieldSuggestions,
   } = useApplications();
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -160,6 +161,7 @@ export default function DashboardPage() {
         saving={saving}
         onChange={handleChange}
         onSubmit={handleSubmit}
+        suggestions={fieldSuggestions}
         relaunchProps={{
           ...relaunchProps,
           onRelaunchChange: relaunchProps.handleRelaunchChange,

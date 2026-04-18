@@ -160,7 +160,30 @@ export default function useApplications() {
     }
 
     return result;
-  }, [sortedApplications, searchQuery, filters]);
+  }, [sortedApplications, searchQuery, filters, relaunchThreshold]);
+
+  const fieldSuggestions = useMemo(() => {
+    const suggestions = {
+      companies: new Set(),
+      titles: new Set(),
+      locations: new Set(),
+      sources: new Set(),
+    };
+
+    applications.forEach((app) => {
+      if (app.companyName) suggestions.companies.add(app.companyName);
+      if (app.jobTitle) suggestions.titles.add(app.jobTitle);
+      if (app.location) suggestions.locations.add(app.location);
+      if (app.source) suggestions.sources.add(app.source);
+    });
+
+    return {
+      companies: Array.from(suggestions.companies).sort(),
+      titles: Array.from(suggestions.titles).sort(),
+      locations: Array.from(suggestions.locations).sort(),
+      sources: Array.from(suggestions.sources).sort(),
+    };
+  }, [applications]);
 
   const toggleFilter = (key) => {
     setFilters((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -196,5 +219,6 @@ export default function useApplications() {
     fetchApplications,
     relaunchThreshold,
     setRelaunchThreshold,
+    fieldSuggestions,
   };
 }

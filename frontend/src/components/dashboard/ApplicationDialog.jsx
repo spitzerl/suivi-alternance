@@ -28,6 +28,7 @@ export default function ApplicationDialog({
   onChange,
   onSubmit,
   relaunchProps,
+  suggestions = { companies: [], titles: [], locations: [], sources: [] }
 }) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -44,12 +45,34 @@ export default function ApplicationDialog({
           </div>
         )}
 
+        <datalist id="companies-suggestions">
+          {suggestions.companies.map((c) => (
+            <option key={c} value={c} />
+          ))}
+        </datalist>
+        <datalist id="titles-suggestions">
+          {suggestions.titles.map((t) => (
+            <option key={t} value={t} />
+          ))}
+        </datalist>
+        <datalist id="locations-suggestions">
+          {suggestions.locations.map((l) => (
+            <option key={l} value={l} />
+          ))}
+        </datalist>
+        <datalist id="sources-suggestions">
+          {suggestions.sources.map((s) => (
+            <option key={s} value={s} />
+          ))}
+        </datalist>
+
         <form onSubmit={onSubmit} className="space-y-4 pt-2">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-[13px]">Entreprise *</Label>
               <Input
                 required
+                list="companies-suggestions"
                 value={form.companyName}
                 onChange={(e) => onChange("companyName", e.target.value)}
                 className="h-9"
@@ -58,6 +81,7 @@ export default function ApplicationDialog({
             <div className="space-y-1.5">
               <Label className="text-[13px]">Poste</Label>
               <Input
+                list="titles-suggestions"
                 value={form.jobTitle}
                 onChange={(e) => onChange("jobTitle", e.target.value)}
                 className="h-9"
@@ -101,6 +125,7 @@ export default function ApplicationDialog({
             <div className="space-y-1.5">
               <Label className="text-[13px]">Localisation</Label>
               <Input
+                list="locations-suggestions"
                 value={form.location}
                 onChange={(e) => onChange("location", e.target.value)}
                 className="h-9"
@@ -119,6 +144,7 @@ export default function ApplicationDialog({
             <div className="space-y-1.5">
               <Label className="text-[13px]">Source</Label>
               <Input
+                list="sources-suggestions"
                 placeholder="LinkedIn, Indeed…"
                 value={form.source}
                 onChange={(e) => onChange("source", e.target.value)}
