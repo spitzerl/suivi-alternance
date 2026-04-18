@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import ExcelJS from "exceljs";
 import api from "@/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Plus,
   Search,
   Filter,
@@ -46,6 +55,9 @@ import {
   Bell,
   Download,
   Upload,
+  FileText,
+  FileSpreadsheet,
+  Settings2,
 } from "lucide-react";
 
 const STATUS_OPTIONS = [
@@ -586,6 +598,151 @@ export default function DashboardPage() {
     URL.revokeObjectURL(url);
   };
 
+  const handleExportCSV = () => {
+    const headers = [
+      "Entreprise",
+      "Poste",
+      "Statut",
+      "Lieu",
+      "Date Candidature",
+      "Nb Relances",
+      "Dernière Relance",
+      "Notes",
+      "Lien Offre",
+    ];
+
+    const formatCSVDate = (d) => {
+      if (!d) return "";
+      return new Date(d).toLocaleDateString("fr-FR");
+    };
+
+    const rows = filteredApplications.map((app) => [
+      app.companyName,
+      app.jobTitle || "",
+      app.status,
+      app.location || "",
+      formatCSVDate(app.dateApplication),
+      app.relaunches?.length || 0,
+      formatCSVDate(getLatestRelaunchDate(app)),
+      (app.notes || "").replace(/\n/g, " "),
+      app.applicationUrl || "",
+    ]);
+
+    const csvContent = [
+      headers.join(";"),
+      ...rows.map((row) =>
+        row
+          .map((cell) => {
+            const str = String(cell).replace(/"/g, '""');
+            return `"${str}"`;
+          })
+          .join(";"),
+      ),
+    ].join("\n");
+
+    const blob = new Blob(["\uFEFF" + csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `suivi_candidatures_${new Date().toISOString().split("T")[0]}.csv`,
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportXLS = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Suivi Candidatures");
+
+    // Configure columns
+    worksheet.columns = [
+      { header: "Entreprise", key: "companyName", width: 25 },
+      { header: "Poste", key: "jobTitle", width: 30 },
+      { header: "Statut", key: "status", width: 15 },
+      { header: "Lieu", key: "location", width: 20 },
+      { header: "Date Candidature", key: "dateApplication", width: 18 },
+      { header: "Nb Relances", key: "nbRelaunches", width: 12 },
+      { header: "Dernière Relance", key: "lastRelaunch", width: 18 },
+      { header: "Notes", key: "notes", width: 40 },
+      { header: "Lien Offre", key: "applicationUrl", width: 30 },
+    ];
+
+    // Style the header row
+    const headerRow = worksheet.getRow(1);
+    headerRow.height = 25;
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true, size: 12 };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFF3F4F6" },
+      };
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+      };
+      cell.alignment = { vertical: "middle", horizontal: "left" };
+    });
+
+    // Add data rows
+    filteredApplications.forEach((app, i) => {
+      const row = worksheet.addRow({
+        companyName: app.companyName,
+        jobTitle: app.jobTitle || "",
+        status: app.status,
+        location: app.location || "",
+        dateApplication: app.dateApplication
+          ? new Date(app.dateApplication).toLocaleDateString("fr-FR")
+          : "",
+        nbRelaunches: app.relaunches?.length || 0,
+        lastRelaunch: getLatestRelaunchDate(app)
+          ? new Date(getLatestRelaunchDate(app)).toLocaleDateString("fr-FR")
+          : "",
+        notes: app.notes || "",
+        applicationUrl: app.applicationUrl || "",
+      });
+
+      // Zebra striping for even rows
+      const fillColor = i % 2 !== 0 ? "FFF9FAFB" : "FFFFFFFF";
+
+      row.eachCell((cell) => {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: fillColor },
+        };
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+        cell.alignment = { vertical: "top", horizontal: "left", wrapText: true };
+      });
+    });
+
+    // Generate the file
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `suivi_candidatures_${new Date().toISOString().split("T")[0]}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const handleImportJSON = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -637,35 +794,50 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-1.5 border-l pl-3 ml-1">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 px-2.5 text-muted-foreground hover:text-foreground"
-              onClick={handleExportJSON}
-              title="Exporter en JSON"
-            >
-              <Download className="h-4 w-4" />
-            </Button>
-            <div className="relative">
-              <Input
-                type="file"
-                accept=".json"
-                onChange={handleImportJSON}
-                className="hidden"
-                id="json-import"
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 px-2.5 text-muted-foreground hover:text-foreground"
-                asChild
-                title="Importer du JSON"
-              >
-                <label htmlFor="json-import" className="cursor-pointer">
-                  <Upload className="h-4 w-4" />
-                </label>
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="h-9 gap-2">
+                  <Settings2 className="h-4 w-4" />
+                  <span>Données</span>
+                  <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[200px]">
+                <DropdownMenuLabel className="text-[11px] text-muted-foreground uppercase tracking-widest">
+                  Exporter
+                </DropdownMenuLabel>
+                <DropdownMenuItem onClick={handleExportXLS}>
+                  <FileSpreadsheet className="h-4 w-4 mr-2" />
+                  <span>Excel (.xlsx)</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportCSV}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  <span>CSV (.csv)</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportJSON}>
+                  <Download className="h-4 w-4 mr-2" />
+                  <span>JSON (.json)</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-[11px] text-muted-foreground uppercase tracking-widest">
+                  Importer
+                </DropdownMenuLabel>
+                <DropdownMenuItem asChild>
+                  <label htmlFor="json-import" className="cursor-pointer flex items-center w-full">
+                    <Upload className="h-4 w-4 mr-2" />
+                    <span>JSON (.json)</span>
+                  </label>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Input
+              type="file"
+              accept=".json"
+              onChange={handleImportJSON}
+              className="hidden"
+              id="json-import"
+            />
           </div>
 
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -1253,7 +1425,7 @@ export default function DashboardPage() {
                 {COLUMNS.map((col) => (
                   <TableHead
                     key={col.key}
-                    className={`text-[12px] font-medium whitespace-nowrap ${col.sortable ? "cursor-pointer select-none hover:text-foreground transition-colors" : ""} ${col.key === "timeBetween" ? "w-[60px] px-0" : ""} ${col.key === "dateApplication" ? "pr-1" : ""}`}
+                    className={`text-[12px] font-bold text-foreground uppercase tracking-wider whitespace-nowrap ${col.sortable ? "cursor-pointer select-none hover:text-primary transition-colors" : ""} ${col.key === "timeBetween" ? "w-[60px] px-0" : ""} ${col.key === "dateApplication" ? "pr-1" : ""}`}
                     onClick={() => col.sortable && handleSort(col.key)}
                   >
                     <span className={`inline-flex items-center gap-0.5 ${col.key === "timeBetween" ? "justify-center w-full" : ""}`}>
@@ -1270,7 +1442,7 @@ export default function DashboardPage() {
               {filteredApplications.map((app) => (
                 <TableRow
                   key={app.id}
-                  className="cursor-pointer hover:bg-muted/20 transition-colors"
+                  className="group cursor-pointer hover:bg-primary/5 even:bg-muted/20 transition-colors border-b border-muted/50"
                   onClick={() => openEdit(app)}
                 >
                   <TableCell className="font-medium text-[13px] whitespace-nowrap">
