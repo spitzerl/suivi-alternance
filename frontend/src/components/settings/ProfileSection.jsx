@@ -81,7 +81,9 @@ export default function ProfileSection({
             className="text-[13px]"
             disabled={profileLoading}
           >
-            {profileLoading ? "Enregistrement…" : "Enregistrer les modifications"}
+            {profileLoading
+              ? "Enregistrement…"
+              : "Enregistrer les modifications"}
           </Button>
         </div>
       </form>

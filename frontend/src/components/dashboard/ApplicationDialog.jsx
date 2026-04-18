@@ -1,4 +1,9 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +27,7 @@ export default function ApplicationDialog({
   saving,
   onChange,
   onSubmit,
-  relaunchProps
+  relaunchProps,
 }) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -71,7 +76,11 @@ export default function ApplicationDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {STATUS_OPTIONS.map((s) => (
-                    <SelectItem key={s.value} value={s.value} className="text-[13px]">
+                    <SelectItem
+                      key={s.value}
+                      value={s.value}
+                      className="text-[13px]"
+                    >
                       {s.value}
                     </SelectItem>
                   ))}

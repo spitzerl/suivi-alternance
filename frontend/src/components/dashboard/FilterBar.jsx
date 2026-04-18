@@ -9,11 +9,17 @@ import {
 } from "@/components/ui/select";
 import { STATUS_OPTIONS } from "@/constants/applicationConstants";
 
-export default function FilterBar({ filters, toggleFilter, onFilterChange, onReset }) {
-  const isFiltered = (filters.status !== "All" ||
+export default function FilterBar({
+  filters,
+  toggleFilter,
+  onFilterChange,
+  onReset,
+}) {
+  const isFiltered =
+    filters.status !== "All" ||
     filters.priority !== "All" ||
     filters.needsRelaunch ||
-    !filters.hideInactive);
+    !filters.hideInactive;
 
   return (
     <div className="flex items-center flex-wrap gap-4 py-2 border-y bg-muted/5 px-1">

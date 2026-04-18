@@ -1,4 +1,13 @@
-import { Search, Settings2, ChevronDown, FileSpreadsheet, FileText, Download, Upload, Plus } from "lucide-react";
+import {
+  Search,
+  Settings2,
+  ChevronDown,
+  FileSpreadsheet,
+  FileText,
+  Download,
+  Upload,
+  Plus,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -9,23 +18,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { handleExportJSON, handleExportCSV, handleExportXLS } from "@/utils/exportUtils";
+import {
+  handleExportJSON,
+  handleExportCSV,
+  handleExportXLS,
+} from "@/utils/exportUtils";
 
-export default function DashboardHeader({ 
-  applicationCount, 
+export default function DashboardHeader({
+  applicationCount,
   totalCount,
-  searchQuery, 
-  setSearchQuery, 
+  searchQuery,
+  setSearchQuery,
   onImportJSON,
   onAddNew,
-  filteredApplications
+  filteredApplications,
 }) {
   return (
     <div className="flex items-center justify-between">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Candidatures
-        </h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Candidatures</h1>
         <p className="text-sm text-muted-foreground mt-0.5">
           {applicationCount} candidature{applicationCount !== 1 ? "s" : ""}
           {searchQuery && ` (sur ${totalCount} au total)`}
@@ -56,15 +67,21 @@ export default function DashboardHeader({
               <DropdownMenuLabel className="text-[11px] text-muted-foreground uppercase tracking-widest">
                 Exporter
               </DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => handleExportXLS(filteredApplications)}>
+              <DropdownMenuItem
+                onClick={() => handleExportXLS(filteredApplications)}
+              >
                 <FileSpreadsheet className="h-4 w-4 mr-2" />
                 <span>Excel (.xlsx)</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExportCSV(filteredApplications)}>
+              <DropdownMenuItem
+                onClick={() => handleExportCSV(filteredApplications)}
+              >
                 <FileText className="h-4 w-4 mr-2" />
                 <span>CSV (.csv)</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExportJSON(filteredApplications)}>
+              <DropdownMenuItem
+                onClick={() => handleExportJSON(filteredApplications)}
+              >
                 <Download className="h-4 w-4 mr-2" />
                 <span>JSON (.json)</span>
               </DropdownMenuItem>
@@ -73,7 +90,10 @@ export default function DashboardHeader({
                 Importer
               </DropdownMenuLabel>
               <DropdownMenuItem asChild>
-                <label htmlFor="json-import" className="cursor-pointer flex items-center w-full">
+                <label
+                  htmlFor="json-import"
+                  className="cursor-pointer flex items-center w-full"
+                >
                   <Upload className="h-4 w-4 mr-2" />
                   <span>JSON (.json)</span>
                 </label>
@@ -90,11 +110,7 @@ export default function DashboardHeader({
           />
         </div>
 
-        <Button
-          size="sm"
-          className="text-[13px] gap-1.5"
-          onClick={onAddNew}
-        >
+        <Button size="sm" className="text-[13px] gap-1.5" onClick={onAddNew}>
           <Plus className="h-4 w-4" /> Ajouter
         </Button>
       </div>

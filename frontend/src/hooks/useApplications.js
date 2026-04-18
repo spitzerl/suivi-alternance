@@ -122,7 +122,9 @@ export default function useApplications() {
     }
 
     if (filters.priority !== "All") {
-      result = result.filter((app) => app.priority === parseInt(filters.priority));
+      result = result.filter(
+        (app) => app.priority === parseInt(filters.priority),
+      );
     }
 
     if (filters.needsRelaunch) {
@@ -155,7 +157,9 @@ export default function useApplications() {
           formatDate(getLatestRelaunchDate(app)),
         ];
         return searchFields.some((f) =>
-          String(f ?? "").toLowerCase().includes(q)
+          String(f ?? "")
+            .toLowerCase()
+            .includes(q),
         );
       });
     }

@@ -1,7 +1,8 @@
 export const STATUS_OPTIONS = [
   {
     value: "En attente",
-    color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+    color:
+      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
   },
   {
     value: "Entretien",
@@ -9,7 +10,8 @@ export const STATUS_OPTIONS = [
   },
   {
     value: "Acceptée",
-    color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+    color:
+      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
   },
   {
     value: "Refusée",
@@ -21,7 +23,8 @@ export const STATUS_OPTIONS = [
   },
   {
     value: "Relancée",
-    color: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+    color:
+      "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
   },
 ];
 
@@ -36,7 +39,13 @@ export const STATUS_ORDER = {
 
 export const INACTIVE_STATUSES = ["Refusée", "Abandonnée"];
 
-export const METHOD_OPTIONS = ["Email", "Téléphone", "LinkedIn", "Courrier", "Autre"];
+export const METHOD_OPTIONS = [
+  "Email",
+  "Téléphone",
+  "LinkedIn",
+  "Courrier",
+  "Autre",
+];
 
 export const EMPTY_FORM = {
   companyName: "",

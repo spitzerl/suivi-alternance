@@ -1,4 +1,11 @@
-import { RotateCcw, ChevronUp, ChevronDown, Plus, ChevronRight, Trash2 } from "lucide-react";
+import {
+  RotateCcw,
+  ChevronUp,
+  ChevronDown,
+  Plus,
+  ChevronRight,
+  Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,21 +36,21 @@ function ResponseBadge({ response }) {
   return <span className="text-muted-foreground text-[11px]">~</span>;
 }
 
-export default function RelaunchSection({ 
-    relaunches, 
-    relaunchForm, 
-    showRelaunchForm, 
-    editingRelaunchId, 
-    savingRelaunch, 
-    relaunchesExpanded, 
-    setRelaunchesExpanded,
-    onRelaunchChange,
-    onOpenNewRelaunch,
-    onToggleEditRelaunch,
-    onCancelRelaunch,
-    onRelaunchSubmit,
-    onDeleteRelaunch,
-    sortedRelaunches
+export default function RelaunchSection({
+  relaunches,
+  relaunchForm,
+  showRelaunchForm,
+  editingRelaunchId,
+  savingRelaunch,
+  relaunchesExpanded,
+  setRelaunchesExpanded,
+  onRelaunchChange,
+  onOpenNewRelaunch,
+  onToggleEditRelaunch,
+  onCancelRelaunch,
+  onRelaunchSubmit,
+  onDeleteRelaunch,
+  sortedRelaunches,
 }) {
   return (
     <div className="mt-2 border-t pt-4">
@@ -63,7 +70,7 @@ export default function RelaunchSection({
           <ChevronDown className="h-3.5 w-3.5 ml-auto text-muted-foreground" />
         )}
       </button>
-      
+
       {relaunchesExpanded && (
         <div className="mt-3 space-y-3">
           {editingRelaunchId === "new" ? (
@@ -107,8 +114,12 @@ export default function RelaunchSection({
                       <SelectValue placeholder="~" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="true" className="text-[12px]">Oui</SelectItem>
-                      <SelectItem value="false" className="text-[12px]">Non</SelectItem>
+                      <SelectItem value="true" className="text-[12px]">
+                        Oui
+                      </SelectItem>
+                      <SelectItem value="false" className="text-[12px]">
+                        Non
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -200,7 +211,9 @@ export default function RelaunchSection({
                           <Input
                             type="date"
                             value={relaunchForm.date}
-                            onChange={(e) => onRelaunchChange("date", e.target.value)}
+                            onChange={(e) =>
+                              onRelaunchChange("date", e.target.value)
+                            }
                             className="h-8 text-[12px]"
                           />
                         </div>
@@ -215,7 +228,11 @@ export default function RelaunchSection({
                             </SelectTrigger>
                             <SelectContent>
                               {METHOD_OPTIONS.map((m) => (
-                                <SelectItem key={m} value={m} className="text-[12px]">
+                                <SelectItem
+                                  key={m}
+                                  value={m}
+                                  className="text-[12px]"
+                                >
                                   {m}
                                 </SelectItem>
                               ))}
@@ -226,14 +243,20 @@ export default function RelaunchSection({
                           <Label>Réponse</Label>
                           <Select
                             value={relaunchForm.response}
-                            onValueChange={(v) => onRelaunchChange("response", v)}
+                            onValueChange={(v) =>
+                              onRelaunchChange("response", v)
+                            }
                           >
                             <SelectTrigger className="h-8 text-[12px]">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="true" className="text-[12px]">Oui</SelectItem>
-                              <SelectItem value="false" className="text-[12px]">Non</SelectItem>
+                              <SelectItem value="true" className="text-[12px]">
+                                Oui
+                              </SelectItem>
+                              <SelectItem value="false" className="text-[12px]">
+                                Non
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -243,7 +266,9 @@ export default function RelaunchSection({
                         <Textarea
                           rows={2}
                           value={relaunchForm.notes}
-                          onChange={(e) => onRelaunchChange("notes", e.target.value)}
+                          onChange={(e) =>
+                            onRelaunchChange("notes", e.target.value)
+                          }
                           className="text-[12px]"
                         />
                       </div>

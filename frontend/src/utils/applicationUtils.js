@@ -20,7 +20,7 @@ export const timeApplicationToLastRelaunch = (app) => {
 
   const start = new Date(app.dateApplication);
   const end = new Date(lastRelaunch);
-  
+
   const diffTime = Math.abs(end - start);
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   return diffDays;

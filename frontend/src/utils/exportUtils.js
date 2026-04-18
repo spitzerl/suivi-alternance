@@ -52,7 +52,7 @@ export const handleExportCSV = (applications) => {
           const str = String(cell).replace(/"/g, '""');
           return `"${str}"`;
         })
-        .join(";")
+        .join(";"),
     ),
   ].join("\n");
 
@@ -64,7 +64,7 @@ export const handleExportCSV = (applications) => {
   link.setAttribute("href", url);
   link.setAttribute(
     "download",
-    `suivi_candidatures_${new Date().toISOString().split("T")[0]}.csv`
+    `suivi_candidatures_${new Date().toISOString().split("T")[0]}.csv`,
   );
   document.body.appendChild(link);
   link.click();

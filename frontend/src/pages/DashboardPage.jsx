@@ -52,7 +52,9 @@ export default function DashboardPage() {
       source: app.source || "",
       applicationUrl: app.applicationUrl || "",
       notes: app.notes || "",
-      dateApplication: app.dateApplication ? app.dateApplication.split("T")[0] : "",
+      dateApplication: app.dateApplication
+        ? app.dateApplication.split("T")[0]
+        : "",
       priority: app.priority != null ? String(app.priority) : "",
     });
     setEditingId(app.id);
@@ -69,7 +71,9 @@ export default function DashboardPage() {
     const payload = {
       ...form,
       priority: form.priority ? parseInt(form.priority) : null,
-      dateApplication: form.dateApplication ? new Date(form.dateApplication).toISOString() : null,
+      dateApplication: form.dateApplication
+        ? new Date(form.dateApplication).toISOString()
+        : null,
     };
     try {
       if (editingId) {
@@ -111,7 +115,7 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-[1600px] mx-auto w-full px-6 py-10 space-y-6">
-      <DashboardHeader 
+      <DashboardHeader
         applicationCount={filteredApplications.length}
         totalCount={applications.length}
         searchQuery={searchQuery}
@@ -121,7 +125,7 @@ export default function DashboardPage() {
         filteredApplications={filteredApplications}
       />
 
-      <FilterBar 
+      <FilterBar
         filters={filters}
         toggleFilter={toggleFilter}
         onFilterChange={handleFilterChange}
@@ -129,9 +133,11 @@ export default function DashboardPage() {
       />
 
       {loading ? (
-        <p className="text-sm text-muted-foreground py-12 text-center">Chargement…</p>
+        <p className="text-sm text-muted-foreground py-12 text-center">
+          Chargement…
+        </p>
       ) : (
-        <ApplicationTable 
+        <ApplicationTable
           applications={filteredApplications}
           sortConfig={sortConfig}
           handleSort={handleSort}
@@ -140,7 +146,7 @@ export default function DashboardPage() {
         />
       )}
 
-      <ApplicationDialog 
+      <ApplicationDialog
         isOpen={dialogOpen}
         onOpenChange={setDialogOpen}
         editingId={editingId}

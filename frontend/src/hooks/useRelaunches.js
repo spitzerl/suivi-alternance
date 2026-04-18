@@ -28,7 +28,8 @@ export default function useRelaunches(applicationId, onUpdate) {
         date: r.date ? r.date.split("T")[0] : "",
         method: r.method || "",
         notes: r.notes || "",
-        response: r.response === true ? "true" : r.response === false ? "false" : "",
+        response:
+          r.response === true ? "true" : r.response === false ? "false" : "",
       });
       setEditingRelaunchId(r.id);
       setShowRelaunchForm(false);
@@ -46,21 +47,26 @@ export default function useRelaunches(applicationId, onUpdate) {
     setSavingRelaunch(true);
     const payload = {
       ...relaunchForm,
-      response: relaunchForm.response === "true" ? true : relaunchForm.response === "false" ? false : null,
+      response:
+        relaunchForm.response === "true"
+          ? true
+          : relaunchForm.response === "false"
+            ? false
+            : null,
     };
     try {
       if (editingRelaunchId && editingRelaunchId !== "new") {
         const res = await api.patch(
           `/applications/${applicationId}/relaunches/${editingRelaunchId}`,
-          payload
+          payload,
         );
         setRelaunches((prev) =>
-          prev.map((r) => (r.id === editingRelaunchId ? res.data : r))
+          prev.map((r) => (r.id === editingRelaunchId ? res.data : r)),
         );
       } else {
         const res = await api.post(
           `/applications/${applicationId}/relaunches`,
-          payload
+          payload,
         );
         setRelaunches((prev) => [...prev, res.data]);
       }
@@ -76,7 +82,9 @@ export default function useRelaunches(applicationId, onUpdate) {
   const deleteRelaunch = async (relaunchId) => {
     if (!applicationId) return;
     try {
-      await api.delete(`/applications/${applicationId}/relaunches/${relaunchId}`);
+      await api.delete(
+        `/applications/${applicationId}/relaunches/${relaunchId}`,
+      );
       setRelaunches((prev) => prev.filter((r) => r.id !== relaunchId));
       if (onUpdate) onUpdate();
     } catch (err) {
