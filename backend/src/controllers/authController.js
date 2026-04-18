@@ -2,7 +2,13 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const prisma = require("../config/prisma");
 
-const JWT_SECRET = process.env.JWT_SECRET || "1234567890";
+const getJwtSecret = () => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET is not defined");
+  }
+  return secret;
+};
 
 // Inscription
 exports.register = async (req, res) => {
@@ -28,7 +34,9 @@ exports.login = async (req, res) => {
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return res.status(401).json({ error: "Identifiants invalides" });
   }
-  const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "24h" });
+  const token = jwt.sign({ userId: user.id }, getJwtSecret(), { 
+    expiresIn: process.env.JWT_EXPIRY || "24h" 
+  });
   res.json({ token, email: user.email });
 };
 
@@ -118,5 +126,44 @@ exports.deleteAccount = async (req, res) => {
     res.status(500).json({
       error: "Erreur lors de la suppression du compte",
     });
+  }
+};
+
+// Récupérer le profil
+exports.getProfile = async (req, res) => {
+  const userId = req.userId;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, name: true, lastname: true, email: true },
+    });
+    if (!user) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur lors de la récupération du profil" });
+  }
+};
+
+// Mettre à jour le profil
+exports.updateProfile = async (req, res) => {
+  const userId = req.userId;
+  const { name, lastname, email } = req.body;
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { name, lastname, email },
+      select: { id: true, name: true, lastname: true, email: true },
+    });
+    res.json(updatedUser);
+  } catch (error) {
+    console.error(error);
+    if (error.code === "P2002") {
+      return res.status(400).json({ error: "Cet email est déjà utilisé" });
+    }
+    res.status(500).json({ error: "Erreur lors de la mise à jour du profil" });
   }
 };

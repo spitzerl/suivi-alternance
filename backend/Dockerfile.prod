@@ -1,0 +1,22 @@
+FROM node:20-slim
+
+WORKDIR /app
+
+# Install openssl for Prisma
+RUN apt-get update -y && apt-get install -y openssl
+
+# Install dependencies
+COPY package*.json ./
+RUN npm install --omit=dev
+
+# Copy source
+COPY . .
+
+# Generate Prisma client with a dummy URL to satisfy build-time requirements
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate
+
+# Final setup
+ENV NODE_ENV=production
+EXPOSE 5000
+
+CMD ["npm", "start"]
