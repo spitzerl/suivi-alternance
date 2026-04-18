@@ -114,13 +114,14 @@ const COLUMNS = [
   { key: "companyName", label: "Entreprise", sortable: true },
   { key: "jobTitle", label: "Poste", sortable: true },
   { key: "status", label: "Statut", sortable: true },
-  { key: "dateApplication", label: "Date", sortable: true },
   { key: "location", label: "Lieu", sortable: true },
   { key: "salary", label: "Salaire", sortable: true },
   { key: "source", label: "Source", sortable: true },
   { key: "priority", label: "Priorité", sortable: true },
-  { key: "relaunches", label: "Relances", sortable: true },
+  { key: "dateApplication", label: "Date candidature", sortable: true },
+  { key: "timeBetween", label: "", sortable: true },
   { key: "lastRelaunch", label: "Dernière Relance", sortable: true },
+  { key: "relaunches", label: "Relances", sortable: true },
   { key: "applicationUrl", label: "Lien", sortable: false },
 ];
 
@@ -182,6 +183,20 @@ const getLatestRelaunchDate = (app) => {
   if (!app.relaunches || app.relaunches.length === 0) return null;
   const dates = app.relaunches.map((r) => new Date(r.date).getTime());
   return Math.max(...dates);
+};
+
+const timeApplicationToLastRelaunch = (app) => {
+  if (!app.dateApplication) return null;
+  const lastRelaunch = getLatestRelaunchDate(app);
+  if (!lastRelaunch) return null;
+
+  const start = new Date(app.dateApplication);
+  const end = new Date(lastRelaunch);
+  
+  // Start and end dates are compared to get the number of days
+  const diffTime = Math.abs(end - start);
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
 };
 
 function HighlightedText({ text, highlight }) {
@@ -288,6 +303,16 @@ export default function DashboardPage() {
       if (key === "lastRelaunch") {
         valA = getLatestRelaunchDate(a);
         valB = getLatestRelaunchDate(b);
+        if (valA === null && valB === null) return 0;
+        if (valA === null) return 1;
+        if (valB === null) return -1;
+        return direction === "asc" ? valA - valB : valB - valA;
+      }
+
+      // Sort by time between
+      if (key === "timeBetween") {
+        valA = timeApplicationToLastRelaunch(a);
+        valB = timeApplicationToLastRelaunch(b);
         if (valA === null && valB === null) return 0;
         if (valA === null) return 1;
         if (valB === null) return -1;
@@ -1228,12 +1253,12 @@ export default function DashboardPage() {
                 {COLUMNS.map((col) => (
                   <TableHead
                     key={col.key}
-                    className={`text-[12px] font-medium whitespace-nowrap ${col.sortable ? "cursor-pointer select-none hover:text-foreground transition-colors" : ""}`}
+                    className={`text-[12px] font-medium whitespace-nowrap ${col.sortable ? "cursor-pointer select-none hover:text-foreground transition-colors" : ""} ${col.key === "timeBetween" ? "w-[60px] px-0" : ""} ${col.key === "dateApplication" ? "pr-1" : ""}`}
                     onClick={() => col.sortable && handleSort(col.key)}
                   >
-                    <span className="inline-flex items-center gap-0.5">
+                    <span className={`inline-flex items-center gap-0.5 ${col.key === "timeBetween" ? "justify-center w-full" : ""}`}>
                       {col.label}
-                      {col.sortable && (
+                      {col.sortable && col.label && (
                         <SortIcon column={col.key} sortConfig={sortConfig} />
                       )}
                     </span>
@@ -1277,12 +1302,7 @@ export default function DashboardPage() {
                       );
                     })()}
                   </TableCell>
-                  <TableCell className="text-[13px] text-muted-foreground whitespace-nowrap">
-                    <HighlightedText
-                      text={formatDate(app.dateApplication)}
-                      highlight={searchQuery}
-                    />
-                  </TableCell>
+
                   <TableCell className="text-[13px] text-muted-foreground whitespace-nowrap">
                     <HighlightedText
                       text={app.location || "~"}
@@ -1304,6 +1324,31 @@ export default function DashboardPage() {
                   <TableCell>
                     {priorityBadge(app.priority, searchQuery)}
                   </TableCell>
+                  <TableCell className="text-[13px] text-muted-foreground whitespace-nowrap pr-1">
+                    <HighlightedText
+                      text={formatDate(app.dateApplication)}
+                      highlight={searchQuery}
+                    />
+                  </TableCell>
+                  <TableCell className="text-[13px] text-muted-foreground whitespace-nowrap w-[60px] px-0">
+                    <div className="flex items-center justify-center gap-1.5 opacity-50">
+                      <ChevronRight className="h-3 w-3" />
+                      <span className="text-[11px] font-medium">
+                        {(() => {
+                          const days = timeApplicationToLastRelaunch(app);
+                          if (days === null) return "~";
+                          return `${days}j`;
+                        })()}
+                      </span>
+                      <ChevronRight className="h-3 w-3" />
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-[13px] text-muted-foreground whitespace-nowrap">
+                    <HighlightedText
+                      text={formatDate(getLatestRelaunchDate(app))}
+                      highlight={searchQuery}
+                    />
+                  </TableCell>
                   <TableCell>
                     {(app.relaunches?.length || 0) > 0 ? (
                       <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
@@ -1318,12 +1363,6 @@ export default function DashboardPage() {
                         <HighlightedText text="~" highlight={searchQuery} />
                       </span>
                     )}
-                  </TableCell>
-                  <TableCell className="text-[13px] text-muted-foreground whitespace-nowrap">
-                    <HighlightedText
-                      text={formatDate(getLatestRelaunchDate(app))}
-                      highlight={searchQuery}
-                    />
                   </TableCell>
                   <TableCell>
                     {app.applicationUrl ? (
