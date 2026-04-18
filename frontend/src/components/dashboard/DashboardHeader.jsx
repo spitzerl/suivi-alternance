@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import {
   Search,
   Settings2,
@@ -33,6 +34,12 @@ export default function DashboardHeader({
   onAddNew,
   filteredApplications,
 }) {
+  const fileInputRef = useRef(null);
+
+  const triggerImport = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
     <div className="flex items-center justify-between">
       <div>
@@ -89,20 +96,16 @@ export default function DashboardHeader({
               <DropdownMenuLabel className="text-[11px] text-muted-foreground uppercase tracking-widest">
                 Importer
               </DropdownMenuLabel>
-              <DropdownMenuItem asChild>
-                <label
-                  htmlFor="json-import"
-                  className="cursor-pointer flex items-center w-full"
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  <span>JSON (.json)</span>
-                </label>
+              <DropdownMenuItem onSelect={triggerImport}>
+                <Upload className="h-4 w-4 mr-2" />
+                <span>JSON (.json)</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Input
+          <input
             type="file"
+            ref={fileInputRef}
             accept=".json"
             onChange={onImportJSON}
             className="hidden"
