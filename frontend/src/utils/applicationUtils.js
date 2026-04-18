@@ -25,3 +25,14 @@ export const timeApplicationToLastRelaunch = (app) => {
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   return diffDays;
 };
+
+export const checkNeedsRelaunch = (app, thresholdDays) => {
+  if (app.status !== "En attente" && app.status !== "Relancée") return false;
+
+  const thresholdDate = new Date();
+  thresholdDate.setDate(thresholdDate.getDate() - thresholdDays);
+
+  const lastActivityDate =
+    getLatestRelaunchDate(app) || new Date(app.dateApplication).getTime();
+  return lastActivityDate < thresholdDate.getTime();
+};

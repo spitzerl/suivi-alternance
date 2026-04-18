@@ -1,4 +1,4 @@
-import { ExternalLink, ChevronRight, RotateCcw } from "lucide-react";
+import { ExternalLink, ChevronRight, RotateCcw, Bell } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -12,6 +12,7 @@ import {
   formatDate,
   getLatestRelaunchDate,
   timeApplicationToLastRelaunch,
+  checkNeedsRelaunch,
 } from "@/utils/applicationUtils";
 import StatusBadge from "./StatusBadge";
 import PriorityBadge from "./PriorityBadge";
@@ -24,6 +25,7 @@ export default function ApplicationTable({
   handleSort,
   searchQuery,
   onEdit,
+  relaunchThreshold,
 }) {
   if (applications.length === 0) {
     return (
@@ -66,10 +68,15 @@ export default function ApplicationTable({
               onClick={() => onEdit(app)}
             >
               <TableCell className="font-medium text-[13px] whitespace-nowrap">
-                <HighlightedText
-                  text={app.companyName}
-                  highlight={searchQuery}
-                />
+                <div className="flex items-center gap-2">
+                  <HighlightedText
+                    text={app.companyName}
+                    highlight={searchQuery}
+                  />
+                  {checkNeedsRelaunch(app, relaunchThreshold) && (
+                    <Bell className="h-3 w-3 text-orange-500 fill-orange-500 animate-pulse" />
+                  )}
+                </div>
               </TableCell>
               <TableCell className="text-[13px] text-muted-foreground whitespace-nowrap">
                 <HighlightedText

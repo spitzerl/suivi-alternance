@@ -24,6 +24,8 @@ export default function DashboardPage() {
     resetFilters,
     filteredApplications,
     fetchApplications,
+    relaunchThreshold,
+    setRelaunchThreshold,
   } = useApplications();
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -125,11 +127,13 @@ export default function DashboardPage() {
         filteredApplications={filteredApplications}
       />
 
-      <FilterBar
+      <FilterBar 
         filters={filters}
         toggleFilter={toggleFilter}
         onFilterChange={handleFilterChange}
         onReset={resetFilters}
+        relaunchThreshold={relaunchThreshold}
+        setRelaunchThreshold={setRelaunchThreshold}
       />
 
       {loading ? (
@@ -137,12 +141,13 @@ export default function DashboardPage() {
           Chargement…
         </p>
       ) : (
-        <ApplicationTable
+        <ApplicationTable 
           applications={filteredApplications}
           sortConfig={sortConfig}
           handleSort={handleSort}
           searchQuery={searchQuery}
           onEdit={openEdit}
+          relaunchThreshold={relaunchThreshold}
         />
       )}
 

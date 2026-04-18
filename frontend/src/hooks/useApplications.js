@@ -8,6 +8,7 @@ import {
   getLatestRelaunchDate,
   timeApplicationToLastRelaunch,
   formatDate,
+  checkNeedsRelaunch,
 } from "@/utils/applicationUtils";
 
 export default function useApplications() {
@@ -25,6 +26,7 @@ export default function useApplications() {
     priority: "All",
     needsRelaunch: false,
   });
+  const [relaunchThreshold, setRelaunchThreshold] = useState(10);
 
   const fetchApplications = useCallback(async () => {
     try {
@@ -128,16 +130,9 @@ export default function useApplications() {
     }
 
     if (filters.needsRelaunch) {
-      const tenDaysAgo = new Date();
-      tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
-
-      result = result.filter((app) => {
-        if (app.status !== "En attente" && app.status !== "Relancée")
-          return false;
-        const lastActivityDate =
-          getLatestRelaunchDate(app) || new Date(app.dateApplication).getTime();
-        return lastActivityDate < tenDaysAgo.getTime();
-      });
+      result = result.filter((app) =>
+        checkNeedsRelaunch(app, relaunchThreshold)
+      );
     }
 
     if (searchQuery.trim()) {
@@ -199,5 +194,7 @@ export default function useApplications() {
     resetFilters,
     filteredApplications,
     fetchApplications,
+    relaunchThreshold,
+    setRelaunchThreshold,
   };
 }
