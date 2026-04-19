@@ -36,7 +36,9 @@ services:
       - "traefik.http.routers.alternance-api.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`/api`)"
       - "traefik.http.routers.alternance-api.entrypoints=websecure"
       - "traefik.http.routers.alternance-api.tls.certresolver=myresolver"
+      - "traefik.http.routers.alternance-api.priority=100"
       - "traefik.http.services.alternance-api.loadbalancer.server.port=5000"
+      - "traefik.docker.network=proxy"
 
   # Frontend
   frontend:
@@ -57,7 +59,9 @@ services:
       - "traefik.http.routers.alternance-web.rule=Host(`${DOMAIN_NAME}`)"
       - "traefik.http.routers.alternance-web.entrypoints=websecure"
       - "traefik.http.routers.alternance-web.tls.certresolver=myresolver"
+      - "traefik.http.routers.alternance-web.priority=1"
       - "traefik.http.services.alternance-web.loadbalancer.server.port=80"
+      - "traefik.docker.network=proxy"
 
 networks:
   prod_network:
