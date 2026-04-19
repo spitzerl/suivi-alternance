@@ -1,3 +1,4 @@
+import { Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -27,8 +28,9 @@ export default function ApplicationDialog({
   saving,
   onChange,
   onSubmit,
+  onDelete,
   relaunchProps,
-  suggestions = { companies: [], titles: [], locations: [], sources: [] }
+  suggestions = { companies: [], titles: [], locations: [], sources: [] },
 }) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -183,6 +185,19 @@ export default function ApplicationDialog({
             />
           </div>
           <div className="flex justify-end gap-2 pt-2">
+            {editingId && (
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                className="text-[13px] mr-auto"
+                onClick={onDelete}
+                disabled={saving}
+              >
+                <Trash2 className="h-3.5 w-3.5 mr-1" />
+                Supprimer
+              </Button>
+            )}
             <Button
               type="button"
               variant="outline"

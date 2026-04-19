@@ -8,5 +8,6 @@ router.get("/", authenticate, applicationController.getAll);
 router.post("/", authenticate, applicationController.create);
 router.post("/bulk", authenticate, applicationController.bulkCreate);
 router.patch("/:id", authenticate, applicationController.update);
+router.delete("/:id", authenticate, applicationController.remove);
 
 module.exports = router;

@@ -97,6 +97,25 @@ export default function DashboardPage() {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleDelete = async () => {
+    if (!editingId) return;
+    if (
+      !window.confirm("Êtes-vous sûr de vouloir supprimer cette candidature ?")
+    )
+      return;
+
+    setSaving(true);
+    try {
+      await api.delete(`/applications/${editingId}`);
+      setDialogOpen(false);
+      fetchApplications();
+    } catch (err) {
+      setError(err.response?.data?.error || "Erreur lors de la suppression.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleImportJSON = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -128,7 +147,7 @@ export default function DashboardPage() {
         filteredApplications={filteredApplications}
       />
 
-      <FilterBar 
+      <FilterBar
         filters={filters}
         toggleFilter={toggleFilter}
         onFilterChange={handleFilterChange}
@@ -142,7 +161,7 @@ export default function DashboardPage() {
           Chargement…
         </p>
       ) : (
-        <ApplicationTable 
+        <ApplicationTable
           applications={filteredApplications}
           sortConfig={sortConfig}
           handleSort={handleSort}
@@ -161,6 +180,7 @@ export default function DashboardPage() {
         saving={saving}
         onChange={handleChange}
         onSubmit={handleSubmit}
+        onDelete={handleDelete}
         suggestions={fieldSuggestions}
         relaunchProps={{
           ...relaunchProps,
