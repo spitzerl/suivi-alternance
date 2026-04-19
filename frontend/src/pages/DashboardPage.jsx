@@ -136,7 +136,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto w-full px-6 py-10 space-y-6">
+    <div className="max-w-[1600px] mx-auto w-full px-3 sm:px-6 py-6 sm:py-10 space-y-6">
       <DashboardHeader
         applicationCount={filteredApplications.length}
         totalCount={applications.length}

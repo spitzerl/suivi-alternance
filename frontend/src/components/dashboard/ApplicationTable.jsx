@@ -38,8 +38,9 @@ export default function ApplicationTable({
   }
 
   return (
-    <div className="border rounded-lg overflow-x-auto">
-      <Table>
+    <div className="relative border rounded-lg overflow-hidden group/table">
+      <div className="overflow-x-auto scrollbar-hide">
+        <Table>
         <TableHeader>
           <TableRow className="bg-muted/30">
             {COLUMNS.map((col) => (

@@ -34,15 +34,15 @@ export default function ApplicationDialog({
 }) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl w-[95vw] sm:w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+        <DialogHeader className="mb-2">
           <DialogTitle>
             {editingId ? "Modifier la candidature" : "Nouvelle candidature"}
           </DialogTitle>
         </DialogHeader>
 
         {error && (
-          <div className="text-[13px] text-destructive bg-destructive/10 rounded-md px-3 py-2">
+          <div className="text-[13px] text-destructive bg-destructive/10 rounded-md px-3 py-2 mb-4">
             {error}
           </div>
         )}
@@ -69,7 +69,7 @@ export default function ApplicationDialog({
         </datalist>
 
         <form onSubmit={onSubmit} className="space-y-4 pt-2">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-[13px]">Entreprise *</Label>
               <Input
@@ -77,7 +77,7 @@ export default function ApplicationDialog({
                 list="companies-suggestions"
                 value={form.companyName}
                 onChange={(e) => onChange("companyName", e.target.value)}
-                className="h-9"
+                className="h-10 sm:h-9"
               />
             </div>
             <div className="space-y-1.5">
@@ -86,18 +86,18 @@ export default function ApplicationDialog({
                 list="titles-suggestions"
                 value={form.jobTitle}
                 onChange={(e) => onChange("jobTitle", e.target.value)}
-                className="h-9"
+                className="h-10 sm:h-9"
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-[13px]">Statut *</Label>
               <Select
                 value={form.status}
                 onValueChange={(v) => onChange("status", v)}
               >
-                <SelectTrigger className="h-9 text-[13px]">
+                <SelectTrigger className="h-10 sm:h-9 text-[13px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -119,18 +119,18 @@ export default function ApplicationDialog({
                 type="date"
                 value={form.dateApplication}
                 onChange={(e) => onChange("dateApplication", e.target.value)}
-                className="h-9 text-[13px]"
+                className="h-10 sm:h-9 text-[13px]"
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-[13px]">Localisation</Label>
               <Input
                 list="locations-suggestions"
                 value={form.location}
                 onChange={(e) => onChange("location", e.target.value)}
-                className="h-9"
+                className="h-10 sm:h-9"
               />
             </div>
             <div className="space-y-1.5">
@@ -138,11 +138,11 @@ export default function ApplicationDialog({
               <Input
                 value={form.salary}
                 onChange={(e) => onChange("salary", e.target.value)}
-                className="h-9"
+                className="h-10 sm:h-9"
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-[13px]">Source</Label>
               <Input
@@ -150,7 +150,7 @@ export default function ApplicationDialog({
                 placeholder="LinkedIn, Indeed…"
                 value={form.source}
                 onChange={(e) => onChange("source", e.target.value)}
-                className="h-9"
+                className="h-10 sm:h-9"
               />
             </div>
             <div className="space-y-1.5">
@@ -161,7 +161,7 @@ export default function ApplicationDialog({
                 max="5"
                 value={form.priority}
                 onChange={(e) => onChange("priority", e.target.value)}
-                className="h-9"
+                className="h-10 sm:h-9"
               />
             </div>
           </div>
@@ -172,7 +172,7 @@ export default function ApplicationDialog({
               placeholder="https://…"
               value={form.applicationUrl}
               onChange={(e) => onChange("applicationUrl", e.target.value)}
-              className="h-9"
+              className="h-10 sm:h-9"
             />
           </div>
           <div className="space-y-1.5">
@@ -184,13 +184,14 @@ export default function ApplicationDialog({
               className="text-[13px]"
             />
           </div>
-          <div className="flex justify-end gap-2 pt-2">
+
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4 border-t mt-4">
             {editingId && (
               <Button
                 type="button"
                 variant="destructive"
                 size="sm"
-                className="text-[13px] mr-auto"
+                className="h-10 sm:h-9 text-[13px] sm:mr-auto w-full sm:w-auto"
                 onClick={onDelete}
                 disabled={saving}
               >
@@ -198,23 +199,29 @@ export default function ApplicationDialog({
                 Supprimer
               </Button>
             )}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="text-[13px]"
-              onClick={() => onOpenChange(false)}
-            >
-              Annuler
-            </Button>
-            <Button
-              type="submit"
-              size="sm"
-              className="text-[13px]"
-              disabled={saving}
-            >
-              {saving ? "Enregistrement…" : editingId ? "Modifier" : "Ajouter"}
-            </Button>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-10 sm:h-9 text-[13px] flex-1 sm:flex-none"
+                onClick={() => onOpenChange(false)}
+              >
+                Annuler
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                className="h-10 sm:h-9 text-[13px] flex-1 sm:flex-none"
+                disabled={saving}
+              >
+                {saving
+                  ? "Enregistrement…"
+                  : editingId
+                    ? "Modifier"
+                    : "Ajouter"}
+              </Button>
+            </div>
           </div>
         </form>
 
