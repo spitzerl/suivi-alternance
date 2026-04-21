@@ -2,29 +2,32 @@ export const STATUS_OPTIONS = [
   {
     value: "En attente",
     color:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+      "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400 border border-amber-200 dark:border-amber-800",
   },
   {
     value: "Entretien",
-    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+    color:
+      "bg-sky-100 text-sky-700 dark:bg-sky-900/20 dark:text-sky-400 border border-sky-200 dark:border-sky-800",
   },
   {
     value: "Acceptée",
     color:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+      "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800",
   },
   {
     value: "Refusée",
-    color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+    color:
+      "bg-rose-100 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400 border border-rose-200 dark:border-rose-800",
   },
   {
     value: "Abandonnée",
-    color: "bg-gray-100 text-gray-800 dark:bg-gray-800/50 dark:text-gray-400",
+    color:
+      "bg-slate-100 text-slate-600 dark:bg-slate-800/50 dark:text-slate-400 border border-slate-200 dark:border-slate-700",
   },
   {
     value: "Relancée",
     color:
-      "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+      "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800",
   },
 ];
 
