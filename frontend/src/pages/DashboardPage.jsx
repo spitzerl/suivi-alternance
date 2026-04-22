@@ -136,39 +136,44 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto w-full px-3 sm:px-6 py-6 sm:py-10 space-y-6">
+    <div className="container max-w-7xl mx-auto px-4 sm:px-8 py-8 space-y-8 animate-in fade-in duration-500">
       <DashboardHeader
         applicationCount={filteredApplications.length}
-        totalCount={applications.length}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        onImportJSON={handleImportJSON}
         onAddNew={openNew}
-        filteredApplications={filteredApplications}
+        searchQuery={searchQuery}
       />
 
       <FilterBar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
         filters={filters}
         toggleFilter={toggleFilter}
         onFilterChange={handleFilterChange}
         onReset={resetFilters}
         relaunchThreshold={relaunchThreshold}
         setRelaunchThreshold={setRelaunchThreshold}
+        onImportJSON={handleImportJSON}
+        filteredApplications={filteredApplications}
       />
 
       {loading ? (
-        <p className="text-sm text-muted-foreground py-12 text-center">
-          Chargement…
-        </p>
+        <div className="flex flex-col items-center justify-center py-24 space-y-4">
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-sm font-medium text-muted-foreground animate-pulse">
+            Chargement de vos candidatures...
+          </p>
+        </div>
       ) : (
-        <ApplicationTable
-          applications={filteredApplications}
-          sortConfig={sortConfig}
-          handleSort={handleSort}
-          searchQuery={searchQuery}
-          onEdit={openEdit}
-          relaunchThreshold={relaunchThreshold}
-        />
+        <div className="pb-20 md:pb-8">
+          <ApplicationTable
+            applications={filteredApplications}
+            sortConfig={sortConfig}
+            handleSort={handleSort}
+            searchQuery={searchQuery}
+            onEdit={openEdit}
+            relaunchThreshold={relaunchThreshold}
+          />
+        </div>
       )}
 
       <ApplicationDialog
