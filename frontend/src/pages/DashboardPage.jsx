@@ -139,21 +139,21 @@ export default function DashboardPage() {
     <div className="container max-w-7xl mx-auto px-4 sm:px-8 py-8 space-y-8 animate-in fade-in duration-500">
       <DashboardHeader
         applicationCount={filteredApplications.length}
-        totalCount={applications.length}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        onImportJSON={handleImportJSON}
         onAddNew={openNew}
-        filteredApplications={filteredApplications}
+        searchQuery={searchQuery}
       />
 
       <FilterBar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
         filters={filters}
         toggleFilter={toggleFilter}
         onFilterChange={handleFilterChange}
         onReset={resetFilters}
         relaunchThreshold={relaunchThreshold}
         setRelaunchThreshold={setRelaunchThreshold}
+        onImportJSON={handleImportJSON}
+        filteredApplications={filteredApplications}
       />
 
       {loading ? (
