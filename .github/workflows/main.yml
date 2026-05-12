@@ -6,6 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build-and-push:
@@ -25,7 +26,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Backend
+      # --- BACKEND (production) ---
+      - name: Build and push Backend (production)
         uses: docker/build-push-action@v5
         with:
           context: ./backend
@@ -35,7 +37,8 @@ jobs:
             ghcr.io/${{ github.repository }}-backend:latest
             ghcr.io/${{ github.repository }}-backend:${{ github.event.release.tag_name }}
 
-      - name: Build and push Frontend
+      # --- FRONTEND (production) ---
+      - name: Build and push Frontend (production)
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
@@ -45,4 +48,4 @@ jobs:
             ghcr.io/${{ github.repository }}-frontend:latest
             ghcr.io/${{ github.repository }}-frontend:${{ github.event.release.tag_name }}
           build-args: |
-            VITE_API_URL=${{ secrets.VITE_API_URL }}   # si besoin
+            VITE_API_URL=${{ secrets.VITE_API_URL }}
