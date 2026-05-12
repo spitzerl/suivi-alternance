@@ -25,7 +25,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Backend (prod)
+      - name: Build and push Backend
         uses: docker/build-push-action@v5
         with:
           context: ./backend
@@ -35,7 +35,7 @@ jobs:
             ghcr.io/${{ github.repository }}-backend:latest
             ghcr.io/${{ github.repository }}-backend:${{ github.event.release.tag_name }}
 
-      - name: Build and push Frontend (prod)
+      - name: Build and push Frontend
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
@@ -45,6 +45,4 @@ jobs:
             ghcr.io/${{ github.repository }}-frontend:latest
             ghcr.io/${{ github.repository }}-frontend:${{ github.event.release.tag_name }}
           build-args: |
-            VITE_API_URL=${{ secrets.VITE_API_URL }}
-            ghcr.io/${{ github.repository }}-frontend:latest
-            ghcr.io/${{ github.repository }}-frontend:${{ github.event.release.tag_name }}
+            VITE_API_URL=${{ secrets.VITE_API_URL }}   # si besoin
