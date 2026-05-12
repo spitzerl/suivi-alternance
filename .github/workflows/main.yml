@@ -25,24 +25,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # --- BACKEND (Cible le dossier ./backend) ---
-      - name: Build and push Backend
+      - name: Build and push Backend (prod)
         uses: docker/build-push-action@v5
         with:
           context: ./backend
-          file: ./backend/Dockerfile
+          file: ./backend/Dockerfile.prod
           push: true
           tags: |
             ghcr.io/${{ github.repository }}-backend:latest
             ghcr.io/${{ github.repository }}-backend:${{ github.event.release.tag_name }}
 
-      # --- FRONTEND (Cible le dossier ./frontend) ---
-      - name: Build and push Frontend
+      - name: Build and push Frontend (prod)
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
-          file: ./frontend/Dockerfile
+          file: ./frontend/Dockerfile.prod
           push: true
           tags: |
+            ghcr.io/${{ github.repository }}-frontend:latest
+            ghcr.io/${{ github.repository }}-frontend:${{ github.event.release.tag_name }}
+          build-args: |
+            VITE_API_URL=${{ secrets.VITE_API_URL }}
             ghcr.io/${{ github.repository }}-frontend:latest
             ghcr.io/${{ github.repository }}-frontend:${{ github.event.release.tag_name }}
