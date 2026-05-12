@@ -16,8 +16,8 @@ Ce guide détaille les étapes pour installer et lancer l'application sur votre 
 Connectez-vous à votre VPS et clonez le dépôt :
 
 ```bash
-git clone <votre-repo-url>
-cd suivi-alternance
+git clone git@github.com:spitzerl/jobingo.git
+cd jobingo
 ```
 
 ---
@@ -35,11 +35,11 @@ nano .env
 
 | Variable | Description | Exemple |
 | :--- | :--- | :--- |
-| `DOMAIN_NAME` | Votre nom de domaine principal | `alternance.mondomaine.fr` |
+| `DOMAIN_NAME` | Votre nom de domaine principal | `jobingo.mondomaine.fr` |
 | `POSTGRES_PASSWORD` | Mot de passe de la DB | `un-mot-de-passe-tres-fort` |
-| `DATABASE_URL` | URL de connexion Prisma | `postgresql://user:password@db:5432/alternance` |
+| `DATABASE_URL` | URL de connexion Prisma | `postgresql://user:password@db:5432/jobingo_db` |
 | `JWT_SECRET` | Clé secrète pour les tokens | `une-longue-chaine-aleatoire` |
-| `VITE_API_URL` | URL de l'API (Frontend -> Backend) | `https://alternance.mondomaine.fr/api` |
+| `VITE_API_URL` | URL de l'API (Frontend -> Backend) | `https://jobingo.mondomaine.fr/api` |
 
 ---
 
@@ -67,7 +67,7 @@ docker exec -it prod_node_backend npx prisma migrate deploy
 
 1. Vérifiez que les containers tournent : `docker ps`
 2. Consultez les logs en cas de problème : `docker compose -f docker-compose.prod.yml logs -f`
-3. Accédez à votre domaine : `https://alternance.mondomaine.fr`
+3. Accédez à votre domaine : `https://jobingo.mondomaine.fr`
 
 ---
 

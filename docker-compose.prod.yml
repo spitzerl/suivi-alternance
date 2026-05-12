@@ -2,7 +2,7 @@ services:
   # BDD
   db:
     image: postgres:15-alpine
-    container_name: prod_postgres_db
+    container_name: jobingo-db
     restart: always
     env_file: .env
     environment:
@@ -19,7 +19,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
-    container_name: prod_node_backend
+    container_name: jobingo-backend
     restart: always
     env_file: .env
     environment:
@@ -33,11 +33,11 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.alternance-api.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.alternance-api.entrypoints=websecure"
-      - "traefik.http.routers.alternance-api.tls.certresolver=myresolver"
-      - "traefik.http.routers.alternance-api.priority=100"
-      - "traefik.http.services.alternance-api.loadbalancer.server.port=5000"
+      - "traefik.http.routers.jobingo-api.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.jobingo-api.entrypoints=websecure"
+      - "traefik.http.routers.jobingo-api.tls.certresolver=myresolver"
+      - "traefik.http.routers.jobingo-api.priority=100"
+      - "traefik.http.services.jobingo-api.loadbalancer.server.port=5000"
       - "traefik.docker.network=proxy"
 
   # Frontend
@@ -47,7 +47,7 @@ services:
       dockerfile: Dockerfile.prod
       args:
         - VITE_API_URL=${VITE_API_URL}
-    container_name: prod_react_frontend
+    container_name: jobingo-frontend
     restart: always
     depends_on:
       - backend
@@ -56,11 +56,11 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.alternance-web.rule=Host(`${DOMAIN_NAME}`)"
-      - "traefik.http.routers.alternance-web.entrypoints=websecure"
-      - "traefik.http.routers.alternance-web.tls.certresolver=myresolver"
-      - "traefik.http.routers.alternance-web.priority=1"
-      - "traefik.http.services.alternance-web.loadbalancer.server.port=80"
+      - "traefik.http.routers.jobingo-web.rule=Host(`${DOMAIN_NAME}`)"
+      - "traefik.http.routers.jobingo-web.entrypoints=websecure"
+      - "traefik.http.routers.jobingo-web.tls.certresolver=myresolver"
+      - "traefik.http.routers.jobingo-web.priority=1"
+      - "traefik.http.services.jobingo-web.loadbalancer.server.port=80"
       - "traefik.docker.network=proxy"
 
 networks:

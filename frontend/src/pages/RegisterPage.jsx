@@ -64,7 +64,7 @@ export default function RegisterPage() {
             Créer un compte
           </h1>
           <p className="text-sm text-muted-foreground">
-            Rejoignez la plateforme pour suivre votre alternance.
+            Rejoignez la plateforme pour suivre votre recherche d'emploi.
           </p>
         </div>
 

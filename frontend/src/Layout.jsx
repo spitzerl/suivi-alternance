@@ -45,7 +45,7 @@ export default function Layout() {
           >
             <GraduationCap className="h-6 w-6 text-primary" />
             <span className="font-bold text-base sm:text-lg tracking-tight">
-              Suivi Alternance
+              Jobingo
             </span>
           </Link>
 

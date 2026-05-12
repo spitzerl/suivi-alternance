@@ -1,6 +1,6 @@
-# Suivi d'Alternance 🚀
+# Jobingo🚀
 
-Application web fullstack pour centraliser et organiser mes recherches d'alternance.
+Application web fullstack pour centraliser et organiser mes recherches d'emploi.
 
 ## 🛠 Stack Technique
 - **Frontend :** React (Vite), Axios, Tailwind CSS, Lucide React
@@ -44,8 +44,8 @@ Ce mode est optimisé pour les performances : le front-end est servi par Nginx e
 
 ### 1. Préparation sur le serveur
 ```bash
-git clone <votre-url-repo>
-cd suivi-alternance
+git clone git@github.com:spitzerl/jobingo.git
+cd jobingo
 cp .env.example .env
 ```
 > [!IMPORTANT]
