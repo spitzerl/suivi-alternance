@@ -31,9 +31,9 @@ export default function ApplicationCard({
     <div
       onClick={() => onEdit(app)}
       className={cn(
-        "relative flex flex-col gap-3 p-4 rounded-xl border bg-card hover:shadow-lg hover:shadow-indigo-500/5 transition-all cursor-pointer active:scale-[0.98]",
+        "relative flex flex-col gap-3 p-4 rounded-xl border border-border/60 bg-card hover:shadow-lg hover:shadow-indigo-500/5 transition-all cursor-pointer active:scale-[0.98]",
         needsRelaunch &&
-          "border-indigo-500/50 shadow-sm shadow-indigo-500/10 bg-indigo-50/30 dark:bg-indigo-950/10",
+          "ring-1 ring-indigo-500/40 shadow-sm shadow-indigo-500/10 bg-indigo-50/30 dark:bg-indigo-950/10",
       )}
     >
       {needsRelaunch && (

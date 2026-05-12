@@ -13,7 +13,7 @@ export default function DeleteAccountSection({
   onDelete,
 }) {
   return (
-    <section className="space-y-4 border border-destructive/20 rounded-lg p-5">
+    <section className="space-y-4 border border-destructive/35 dark:border-destructive/45 rounded-lg p-5">
       <div>
         <h2 className="text-[15px] font-medium text-destructive">
           Supprimer le compte

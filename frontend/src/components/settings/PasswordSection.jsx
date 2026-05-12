@@ -11,7 +11,7 @@ export default function PasswordSection({
   onPasswordChange,
 }) {
   return (
-    <section className="space-y-4 border rounded-lg p-5">
+    <section className="space-y-4 border border-border/60 rounded-lg p-5">
       <div>
         <h2 className="text-[15px] font-medium">Changer le mot de passe</h2>
         <p className="text-[13px] text-muted-foreground mt-0.5">

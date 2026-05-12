@@ -62,7 +62,7 @@ export default function ApplicationTable({
       </div>
 
       {/* Desktop View: Table */}
-      <div className="hidden md:block border rounded-xl overflow-hidden bg-card shadow-sm">
+      <div className="hidden md:block border border-border/60 rounded-xl overflow-hidden bg-card shadow-sm">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
