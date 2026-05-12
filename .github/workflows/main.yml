@@ -25,7 +25,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # --- BACKEND BUILD ---
+      # --- BACKEND (Cible le dossier ./backend) ---
       - name: Build and push Backend
         uses: docker/build-push-action@v5
         with:
@@ -36,7 +36,7 @@ jobs:
             ghcr.io/${{ github.repository }}-backend:latest
             ghcr.io/${{ github.repository }}-backend:${{ github.event.release.tag_name }}
 
-      # --- FRONTEND BUILD ---
+      # --- FRONTEND (Cible le dossier ./frontend) ---
       - name: Build and push Frontend
         uses: docker/build-push-action@v5
         with:
